@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <title>St. Anthony Cemetery</title>
+</head>
+<body class="bg-gray-100">
+    {% block  content %}
+
+    <!-- HEADER -->
+    <header class="w-full bg-sky-800 shadow-lg
+            border-b-8 border-t-8 border-t-white border-b-blue-950">
+        <div class="max-w-7xl mx-auto 
+            px-4 sm:px-6 lg:px-12 xl:px-20 2xl:px-32
+            py-4 flex flex-col lg:flex-row items-center justify-between">
+
+            <!-- Logo + Text -->
+            <div class="flex items-center text-gray-200">
+                <img src="{% static 'img/logo.avif' %}" alt="Logo" class="h-20 w-auto mr-4">
+                <ul class="font-bold leading-tight">
+                    <li>OUR LADY</li>
+                    <li class="italic">of</li>
+                    <li>PEACE PARISH</li>
+                </ul>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="mt-4 lg:mt-0">
+                <ul class="flex gap-6 text-gray-200 font-semibold text-lg">
+                    <li><a class="hover:text-blue-950" 
+                           href="{% url 'index' %}">Home</a></li>
+                    <li><a class="hover:text-blue-950" href="{% url 'plot' %}">Plot</a></li>
+                    <li><a class="hover:text-blue-950" 
+                           href="https://www.ourladyofpeacefredericton.ca/about-us">About us</a></li>
+                    <li><a class="hover:text-blue-950" 
+                           href="https://www.ourladyofpeacefredericton.ca/contact-us-1">Contact us</a></li>
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex max-w-4xl mx-auto px-4 sm:px-6 lg:px-12 text-left justify-center">
+        <div class="flex flex-col p-2 gap-2 bg-gray-100 shadow-md w-full">
+            <p class="font-bold ml-2">Deceased Details</p>
+            <ul class="flex flex-col gap-2 ml-8">
+                <li>Plot:</li>
+                <p>{{ info.plot }}</p>
+                <li>id:</li>
+                <p>{{ info.id }}</p>
+                <li>Deceased status:</li>
+                <p>{{ info.deceased_status }}</p>
+                <li>First name:</li>
+                <p>{{ info.first_name }}</p>
+                <li>Middle name:</li>
+                <p>{{ info.middle_name }}</p>
+                <li>Last name:</li>
+                <p>{{ info.last_name }}</p>
+                <li>Gender:</li>
+                <p>{{ info.gender }}</p>
+                <li>Date buried:</li>
+                <p>{{ info.date_buried }}</p>
+                <li>Note:</li>
+                <p>{{ info.note }}</p>
+                <li>Dob year:</li>
+                <p>{{ info.dob_year }}</p>
+                <li>Dod year:</li>
+                <p>{{ info.dod_year }}</p>
+            </ul>
+        </div>
+    </main>
+{% endblock %}
+</body>
+</html>
