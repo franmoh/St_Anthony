@@ -1,0 +1,4 @@
+{% include 'cemetery/partials/plot_deceased_card.html' %}
+<span id="deceased-summary-{{ d.pk }}" hx-swap-oob="outerHTML">
+    {% include 'cemetery/partials/plot_deceased_summary_inner.html' %}
+</span>

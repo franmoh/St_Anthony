@@ -1,0 +1,7 @@
+{{ d.first_name }} {{ d.last_name }}
+{% if d.deceased_status %}
+<span class="text-sm bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded ml-1">{{ d.deceased_status.display_name }}</span>
+{% endif %}
+{% if not d.plot.is_columbarium_niche %}
+<span class="text-sm text-gray-500 ml-1">Zone {{ d.zone_id }}</span>
+{% endif %}

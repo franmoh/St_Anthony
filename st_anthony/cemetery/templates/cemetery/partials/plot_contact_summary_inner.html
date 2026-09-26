@@ -1,0 +1,14 @@
+{{ c.contact_details.first_name }} {{ c.contact_details.last_name }}
+{% if c.is_primary_contact %}
+<span class="text-sm bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded ml-1">Primary</span>
+{% endif %}
+{% if c.payment %}
+{% with ps=c.payment.payment_status.payment_status_constant %}
+<span class="text-sm px-1.5 py-0.5 rounded ml-1
+    {% if ps == 'PAID' %}bg-emerald-100 text-emerald-800
+    {% elif ps == 'PARTIAL' %}bg-amber-100 text-amber-800
+    {% else %}bg-slate-100 text-slate-800{% endif %}">
+    {{ ps }}
+</span>
+{% endwith %}
+{% endif %}

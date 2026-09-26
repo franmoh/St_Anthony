@@ -1,0 +1,36 @@
+<div id="deceased-note-section" class="mt-6">
+    <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100">
+            <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Note</h2>
+        </div>
+        <div class="p-5 sm:p-6">
+
+        <form hx-post="{% url 'edit_deceased_note' pk=deceased.pk %}"
+              hx-target="#deceased-note-section"
+              hx-swap="outerHTML"
+              data-dirty-tracked
+              class="space-y-2 text-sm">
+            {% csrf_token %}
+
+            <textarea name="note" maxlength="4000" rows="5" required
+                      class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none"
+                      placeholder="Enter a note for this person">{% if form_data %}{{ form_data.note }}{% else %}{{ deceased.note.note|default:'' }}{% endif %}</textarea>
+            {% if errors.note %}<p class="text-red-600">{{ errors.note }}</p>{% endif %}
+
+            <div class="flex gap-2 pt-1">
+                <button type="submit"
+                        class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg transition-colors">
+                    Save
+                </button>
+                <button type="button"
+                        hx-get="{% url 'deceased_note_section' pk=deceased.pk %}"
+                        hx-target="#deceased-note-section"
+                        hx-swap="outerHTML"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>

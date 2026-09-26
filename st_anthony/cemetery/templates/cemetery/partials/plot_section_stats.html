@@ -1,0 +1,21 @@
+{% comment %}
+Per-section status counts that double as the plot filter: unchecking a status dims its plots.
+Re-rendered with hx_swap_oob after plot edits; plot_status_filter.html restores the checkbox state.
+{% endcomment %}
+{% if item.stats %}
+<div id="section-stats-{{ item.section.id }}" role="group" aria-label="Filter plots by status"
+     class="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-gray-100"
+     {% if hx_swap_oob %}hx-swap-oob="true"{% endif %}>
+    <span class="text-sm font-medium text-gray-500 mr-1">Filter:</span>
+    {% for stat in item.stats %}
+    <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 bg-white text-sm cursor-pointer select-none
+                  hover:bg-gray-50 transition-opacity has-[input:not(:checked)]:opacity-50">
+        <input type="checkbox" value="{{ stat.status }}" checked data-status-filter
+               class="w-4 h-4 accent-sky-700 cursor-pointer">
+        <span class="inline-block w-3.5 h-3.5 rounded border {{ stat.swatch }}" aria-hidden="true"></span>
+        <span class="font-medium text-gray-800">{{ stat.label }}</span>
+        <span class="text-gray-500">{{ stat.count }} ({{ stat.pct }}%)</span>
+    </label>
+    {% endfor %}
+</div>
+{% endif %}

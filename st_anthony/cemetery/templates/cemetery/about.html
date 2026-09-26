@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}About Us | St. Anthony Cemetery{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center px-4 sm:px-12 lg:px-16">
+    <div class="w-full max-w-4xl">
+
+        <div class="mt-8 mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-950 tracking-tight">About Our Lady of Peace Parish</h1>
+            <p class="mt-3 text-base text-gray-600">Three churches, one parish community on Fredericton's Northside.</p>
+        </div>
+
+        <!-- Who we are -->
+        <section class="bg-white border border-gray-200 shadow-sm mb-6">
+            <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100">
+                <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Who We Are</h2>
+            </div>
+            <div class="p-5 sm:p-8">
+                <div class="max-w-2xl space-y-5 text-base leading-7 text-gray-700">
+                    <p class="text-lg leading-8 text-gray-900">
+                        Our Lady of Peace Parish is located on the Northside of Fredericton and serves a combination of
+                        rural and urban parishioners, including one of New Brunswick's largest First Nations communities.
+                    </p>
+                    <p>
+                        Consisting of three churches &mdash; <span class="font-semibold text-gray-900">St. Anthony's</span>,
+                        <span class="font-semibold text-gray-900">St. Patrick's</span> and
+                        <span class="font-semibold text-gray-900">St. Theresa's</span> &mdash; Our Lady of Peace Parish serves
+                        the spiritual, social and health needs of our community.
+                    </p>
+                    <p>
+                        We welcome young families, seniors, new Canadians and visitors by offering a welcoming, inclusive
+                        community with many opportunities for spiritual growth through our many religious formation opportunities.
+                        We also provide social activities and general health and welfare services through our parish
+                        nursing program.
+                    </p>
+                </div>
+                <blockquote class="mt-6 border-l-4 border-blue-300 bg-blue-50 px-5 py-4 text-lg leading-8 text-blue-950">
+                    Our wish for our future as a parish is to subscribe to the words of John Paul II and try to live
+                    his message of Peace in our daily lives.
+                </blockquote>
+            </div>
+        </section>
+
+        <!-- Our Staff / Our Mass Times / Our Churches - photo cards -->
+        <div class="mb-6">
+            {% include "cemetery/partials/parish_info_cards.html" %}
+        </div>
+
+        <!-- Pastoral Care Center strip -->
+        <div class="mb-6">
+            {% include "cemetery/partials/pastoral_care_center.html" %}
+        </div>
+
+        <!-- Newsletter subscribe -->
+        <div class="mb-10">
+            {% include "cemetery/partials/newsletter_signup.html" %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

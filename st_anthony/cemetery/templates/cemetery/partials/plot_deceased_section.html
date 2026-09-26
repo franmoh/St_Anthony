@@ -1,0 +1,20 @@
+<div id="deceased-section" class="mb-4">
+    <h4 class="text-base font-bold text-gray-700 mb-2 border-b pb-1">Deceased</h4>
+
+    {% if deceased_list %}
+    {% for d in deceased_list %}
+    <details class="mb-2 p-3 bg-gray-50 border text-base">
+        <summary class="cursor-pointer font-medium text-gray-900">
+            <span id="deceased-summary-{{ d.pk }}">
+                {% include 'cemetery/partials/plot_deceased_summary_inner.html' %}
+            </span>
+        </summary>
+        {% include 'cemetery/partials/plot_deceased_card.html' %}
+    </details>
+    {% endfor %}
+    {% else %}
+    <p class="text-sm text-gray-500 italic mb-2">No deceased recorded for this plot.</p>
+    {% endif %}
+
+    {% include 'cemetery/partials/plot_deceased_add_button.html' %}
+</div>

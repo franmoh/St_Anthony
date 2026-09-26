@@ -1,0 +1,20 @@
+<div id="contact-section" class="mb-4">
+    <h4 class="text-base font-bold text-gray-700 mb-2 border-b pb-1">Contacts</h4>
+
+    {% if contacts %}
+    {% for c in contacts %}
+    <details class="mb-2 p-3 bg-gray-50 border text-base">
+        <summary class="cursor-pointer font-medium text-gray-900">
+            <span id="summary-content-{{ c.pk }}">
+                {% include 'cemetery/partials/plot_contact_summary_inner.html' %}
+            </span>
+        </summary>
+        {% include 'cemetery/partials/plot_contact_card.html' %}
+    </details>
+    {% endfor %}
+    {% else %}
+    <p class="text-sm text-gray-500 italic mb-2">No contacts on file for this plot.</p>
+    {% endif %}
+
+    {% include 'cemetery/partials/plot_contact_add_button.html' %}
+</div>

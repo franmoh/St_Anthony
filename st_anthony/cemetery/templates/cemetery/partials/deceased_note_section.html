@@ -1,0 +1,44 @@
+<div id="deceased-note-section" class="mt-6">
+    <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100">
+            <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Note</h2>
+        </div>
+        <div class="p-5 sm:p-6">
+
+        {% if deceased.note %}
+        <p class="text-base leading-7 text-gray-700 whitespace-pre-wrap">{{ deceased.note.note }}</p>
+        {% if request.user.is_authenticated %}
+        <div class="flex gap-2 mt-4">
+            <button type="button"
+                    hx-get="{% url 'edit_deceased_note' pk=deceased.pk %}"
+                    hx-target="#deceased-note-section"
+                    hx-swap="outerHTML"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-1.5 rounded-lg transition-colors">
+                Edit
+            </button>
+            <button type="button"
+                    hx-post="{% url 'delete_deceased_note' pk=deceased.pk %}"
+                    hx-target="#deceased-note-section"
+                    hx-swap="outerHTML"
+                    hx-confirm="Delete this note? This cannot be undone."
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
+                Delete
+            </button>
+        </div>
+        {% endif %}
+        {% else %}
+        <p class="text-base text-gray-400">No notes yet.</p>
+        {% if request.user.is_authenticated %}
+        <button type="button"
+                hx-get="{% url 'edit_deceased_note' pk=deceased.pk %}"
+                hx-target="#deceased-note-section"
+                hx-swap="outerHTML"
+                class="mt-4 text-sm bg-blue-950 hover:bg-sky-800 text-white px-3 py-1.5 rounded-lg transition-colors">
+            + Add Note
+        </button>
+        {% endif %}
+        {% endif %}
+        </div>
+    </div>
+</div>

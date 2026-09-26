@@ -1,0 +1,2 @@
+{# Kept compact and cheap: rendered once per niche. See plot_grid_button.html. #}
+{% load l10n %}{% localize off %}<div id="plot-grid-{{ p.pk }}" class="plot-cell shrink-0"{% if hx_swap_oob %} hx-swap-oob="{{ hx_swap_oob }}"{% endif %}><button hx-get="{% if p.detail_url %}{{ p.detail_url }}{% else %}{% url detail_url_name pk=p.pk %}{% endif %}" data-plot-status="{{ p.plot_status }}" class="plot-btn" title="{{ section_constant }} - Unit {{ p.unit }}, Side {{ p.side }}, Niche {{ p.niche }}">{{ p.niche }}</button></div>{% endlocalize %}

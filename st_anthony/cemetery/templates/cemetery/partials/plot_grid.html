@@ -1,0 +1,38 @@
+<!-- Selected section. Plot buttons inherit hx-target/hx-swap from the body div.
+     data-selected-plot (from ?plot=<pk>) is picked up by plot_selection.html. -->
+<div class="bg-white border border-gray-200 shadow-sm min-w-0"{% if item.selected_plot_id %} data-selected-plot="{{ item.selected_plot_id }}"{% endif %}>
+    <div class="px-4 py-3 bg-blue-50 border-b border-blue-100">
+        <h2 class="text-lg font-bold text-sky-900 text-center">
+            {{ item.section.section_constant }}
+        </h2>
+    </div>
+    <div class="p-4" hx-target="#plot-detail-panel" hx-swap="innerHTML">
+
+    {% include 'cemetery/partials/plot_section_stats.html' with item=item %}
+
+    {% if item.is_columbarium %}
+        {% if item.columbarium_layout %}
+        {% include 'cemetery/partials/plot_columbarium_grid.html' %}
+        {% else %}
+        <p class="text-base text-gray-400 text-center">No niches</p>
+        {% endif %}
+    {% elif item.rows %}
+    <div class="overflow-x-auto">
+        <table class="border-collapse">
+            {% for row_key, row_plots in item.rows.items %}
+            <tr>
+                {% if item.has_row_labels %}
+                <td class="text-base text-gray-500 pr-2 py-1 font-medium whitespace-nowrap align-middle sticky left-0 bg-white">
+                    {% if row_key %}Row {{ row_key }}{% endif %}
+                </td>
+                {% endif %}
+                {% for p in row_plots %}{% include 'cemetery/partials/plot_grid_button.html' with section_constant=item.section.section_constant %}{% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <p class="text-base text-gray-400 text-center">No plots</p>
+    {% endif %}
+    </div>
+</div>

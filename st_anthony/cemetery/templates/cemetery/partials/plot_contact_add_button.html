@@ -1,0 +1,13 @@
+<div id="contact-add-region" class="mt-2">
+    {% if plot.plot_status != 'Available' %}
+    <button type="button"
+            hx-get="{% url 'add_contact' pk=plot.pk %}"
+            hx-target="#contact-add-region"
+            hx-swap="outerHTML"
+            class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded">
+        + Add Contact
+    </button>
+    {% else %}
+    <p class="text-sm text-gray-500 italic">Reserve this plot to add contacts.</p>
+    {% endif %}
+</div>

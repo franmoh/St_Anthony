@@ -1,0 +1,15 @@
+{% comment %}
+Reusable "nothing found" card. Usage:
+{% include "cemetery/partials/empty_state.html" with title="No results found" message='No records matching your search "1952"' hint="Try checking the spelling or using fewer keywords..." %}
+title: required. message/hint/action_url/action_label: optional.
+{% endcomment %}
+<div class="bg-white border border-gray-200 shadow-sm p-8 w-full max-w-xl text-center">
+    <p class="text-lg font-semibold text-gray-900 mb-2">{{ title }}</p>
+    {% if message %}<p class="text-sm text-red-600 mb-2">{{ message }}</p>{% endif %}
+    {% if hint %}<p class="text-sm text-gray-500 mb-2">{{ hint }}</p>{% endif %}
+    {% if action_url %}
+        <a href="{{ action_url }}" class="inline-block mt-2 bg-blue-950 text-white px-5 py-2.5 text-sm font-semibold hover:bg-sky-800 transition-colors">
+            {{ action_label }}
+        </a>
+    {% endif %}
+</div>

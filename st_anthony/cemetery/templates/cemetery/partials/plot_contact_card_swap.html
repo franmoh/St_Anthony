@@ -1,0 +1,5 @@
+{% include 'cemetery/partials/plot_contact_card.html' %}
+<span id="summary-content-{{ c.pk }}" hx-swap-oob="outerHTML">
+    {% include 'cemetery/partials/plot_contact_summary_inner.html' %}
+</span>
+{% include 'cemetery/partials/plot_engraving_region.html' with oob=True %}

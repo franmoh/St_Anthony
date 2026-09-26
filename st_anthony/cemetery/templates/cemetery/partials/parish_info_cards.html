@@ -1,0 +1,39 @@
+{% load static %}
+<div id="parish-info-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <div class="relative overflow-hidden shadow-sm">
+        <img src="{% static 'img/church-books.avif' %}" alt="Our Staff"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10"></div>
+        <div class="relative min-h-64 flex flex-col justify-end p-5 text-white">
+            <h2 class="text-lg font-bold tracking-wide mb-2">OUR STAFF</h2>
+            <p class="text-sm leading-relaxed"><span class="font-medium">Priest:</span> Fr. Maria Arokiam Chinnappan</p>
+            <p class="text-sm leading-relaxed"><span class="font-medium">Administration:</span> Irene Jewett</p>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden shadow-sm">
+        <img src="{% static 'img/church-stained-glass.avif' %}" alt="Our Mass Times"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10"></div>
+        <div class="relative min-h-64 flex flex-col justify-end p-5 text-white">
+            <h2 class="text-lg font-bold tracking-wide mb-2">OUR MASS TIMES</h2>
+            <p class="text-sm leading-relaxed"><span class="font-medium">Saturday at 4:00 pm</span> &mdash; St. Anthony's</p>
+            <p class="text-sm leading-relaxed"><span class="font-medium">Sunday at 9:00 am</span> &mdash; St. Patrick's</p>
+            <p class="text-sm leading-relaxed"><span class="font-medium">Sunday at 11:00 am</span> &mdash; St. Theresa's</p>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden shadow-sm">
+        <img src="{% static 'img/church-candles.avif' %}" alt="Our Churches"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10"></div>
+        <div class="relative min-h-64 flex flex-col justify-end p-5 text-white">
+            <h2 class="text-lg font-bold tracking-wide mb-2">OUR CHURCHES</h2>
+            <p class="text-sm leading-relaxed">St. Anthony's</p>
+            <p class="text-sm leading-relaxed">St. Patrick's</p>
+            <p class="text-sm leading-relaxed">St. Theresa's</p>
+        </div>
+    </div>
+
+</div>

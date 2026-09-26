@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}St. Anthony Cemetery{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="text-center px-4 pt-6 pb-2">
+    <h1 class="text-3xl sm:text-4xl font-bold text-blue-950 tracking-tight">
+        Find your loved ones' final resting place
+    </h1>
+    <p class="mt-3 text-gray-500 max-w-xl mx-auto">
+        Search St. Anthony Cemetery's records by name, year, or burial date.
+    </p>
+</div>
+
+<div class="flex flex-col items-center min-h-[60vh] px-4 sm:px-8 lg:px-16">
+    <div class="w-full max-w-3xl">
+        <!-- Search Bar -->
+        <form method="GET" action="{% url 'home' %}"
+              hx-get="{% url 'home' %}"
+              hx-target="#search-results"
+              hx-swap="innerHTML"
+              hx-push-url="true"
+              hx-indicator="#search-spinner"
+              class="mt-8 bg-white border border-gray-200 shadow-sm p-3 flex flex-col sm:flex-row gap-2">
+            <!-- Filter dropdown -->
+            <select name="filter" hx-get="{% url 'home' %}" hx-include="closest form" hx-trigger="change"
+                    hx-target="#search-results" hx-swap="innerHTML" hx-push-url="true"
+                    class="w-full sm:w-40 h-11 px-3 border border-gray-200 bg-gray-50 text-sm font-medium text-gray-700
+                        focus:outline-none focus:ring-2 focus:ring-sky-700 truncate">
+                <option value="" {% if not filter_type %}selected{% endif %}>All Fields</option>
+                <option value="Firstname" {% if filter_type == "Firstname" %}selected{% endif %}>First Name</option>
+                <option value="Lastname" {% if filter_type == "Lastname" %}selected{% endif %}>Last Name</option>
+                <option value="DOB" {% if filter_type == "DOB" %}selected{% endif %}>Year of Birth</option>
+                <option value="DOD" {% if filter_type == "DOD" %}selected{% endif %}>Year of Death</option>            </select>
+
+            <!-- Search input -->
+            {% include "cemetery/partials/search_input.html" %}
+
+            <!-- Search button -->
+            <button type="submit" class="flex justify-center items-center w-full sm:w-auto sm:px-6 h-11 bg-blue-950 hover:bg-sky-800
+                    text-white font-semibold text-sm transition-colors">
+                Search
+                <span id="search-spinner" class="htmx-indicator ml-2" aria-hidden="true">…</span>
+            </button>
+        </form>
+    </div>
+
+    <div id="search-results" class="w-full max-w-4xl mt-6">
+        {% include "cemetery/partials/search_results.html" %}
+    </div>
+
+    <div class="w-full max-w-4xl mt-auto pt-8 mb-4 {% if search_performed %}hidden{% endif %}">
+        {% include "cemetery/partials/parish_info_cards.html" %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        document.body.addEventListener('focusin', function (event) {
+            if (event.target.id !== 'search-input') return;
+            var cards = document.getElementById('parish-info-cards');
+            if (cards) cards.parentElement.classList.add('hidden');
+        });
+        document.body.addEventListener('focusout', function (event) {
+            if (event.target.id !== 'search-input') return;
+            var cards = document.getElementById('parish-info-cards');
+            if (cards && !event.target.value.trim()) {
+                cards.parentElement.classList.remove('hidden');
+            }
+        });
+    })();
+</script>
+{% endblock %}

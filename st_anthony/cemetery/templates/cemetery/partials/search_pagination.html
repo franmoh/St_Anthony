@@ -1,0 +1,33 @@
+{% comment %}
+Page links for search results. {% querystring %} keeps search_query/filter and swaps in the page;
+htmx loads the page into #search-results and scrolls back to its top. Renders nothing for a single page.
+{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+{% with link="min-w-8 px-2.5 py-1 text-center border border-gray-200 text-sm font-medium text-blue-900 hover:bg-blue-50 transition-colors" disabled="px-2.5 py-1 border border-gray-100 text-sm font-medium text-gray-300 cursor-not-allowed" %}
+<nav class="flex items-center justify-center flex-wrap gap-1.5 px-4 py-3 border-t border-gray-200 bg-gray-50"
+     aria-label="Search result pages"
+     hx-target="#search-results" hx-swap="innerHTML show:#search-results:top" hx-push-url="true">
+    {% if page_obj.has_previous %}
+    <a href="{% querystring page=page_obj.previous_page_number %}" hx-get="{% querystring page=page_obj.previous_page_number %}" class="{{ link }}">Prev</a>
+    {% else %}
+    <span class="{{ disabled }}" aria-disabled="true">Prev</span>
+    {% endif %}
+
+    {% for num in page_range %}
+        {% if num == page_obj.number %}
+        <span class="min-w-8 px-2.5 py-1 text-center border border-blue-950 bg-blue-950 text-white text-sm font-semibold" aria-current="page">{{ num }}</span>
+        {% elif num == page_obj.paginator.ELLIPSIS %}
+        <span class="px-1 text-sm text-gray-400">{{ num }}</span>
+        {% else %}
+        <a href="{% querystring page=num %}" hx-get="{% querystring page=num %}" class="{{ link }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="{% querystring page=page_obj.next_page_number %}" hx-get="{% querystring page=page_obj.next_page_number %}" class="{{ link }}">Next</a>
+    {% else %}
+    <span class="{{ disabled }}" aria-disabled="true">Next</span>
+    {% endif %}
+</nav>
+{% endwith %}
+{% endif %}

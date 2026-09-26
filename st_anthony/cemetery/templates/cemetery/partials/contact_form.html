@@ -1,0 +1,44 @@
+<div id="contact-form-wrapper">
+    {% if sent %}
+        {% include "cemetery/partials/alert.html" with variant="success" message="Thanks for reaching out! Your message has been sent to the parish office." square=True %}
+    {% else %}
+        {% if errors %}
+            {% include "cemetery/partials/alert.html" with variant="error" heading="Please fix the following:" messages=errors.values square=True %}
+        {% endif %}
+        <form hx-post="{% url 'contact_submit' %}" hx-target="#contact-form-wrapper" hx-swap="outerHTML" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-800 mb-1.5" for="cf-first-name">First Name</label>
+                    <input id="cf-first-name" type="text" name="first_name" value="{{ form_data.first_name|default:'' }}"
+                           class="w-full border border-gray-200 px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-800 mb-1.5" for="cf-last-name">Last Name</label>
+                    <input id="cf-last-name" type="text" name="last_name" value="{{ form_data.last_name|default:'' }}"
+                           class="w-full border border-gray-200 px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-800 mb-1.5" for="cf-email">Email</label>
+                    <input id="cf-email" type="email" name="email" value="{{ form_data.email|default:'' }}"
+                           class="w-full border border-gray-200 px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-800 mb-1.5" for="cf-phone">Phone <span class="font-normal text-gray-400">(optional)</span></label>
+                    <input id="cf-phone" type="text" name="phone" value="{{ form_data.phone|default:'' }}"
+                           class="w-full border border-gray-200 px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-800 mb-1.5" for="cf-message">Message</label>
+                <textarea id="cf-message" name="message" rows="5" placeholder="Type your message here..."
+                          class="w-full border border-gray-200 px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none">{{ form_data.message|default:'' }}</textarea>
+            </div>
+            <button type="submit" class="bg-blue-950 text-white px-6 py-3 text-base font-semibold hover:bg-sky-800 transition-colors">
+                Submit
+            </button>
+        </form>
+    {% endif %}
+</div>

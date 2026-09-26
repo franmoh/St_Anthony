@@ -1,0 +1,5 @@
+{% include 'cemetery/partials/plot_deceased_section.html' %}
+<!-- {# Keep the status control in sync: adding the first deceased enables "Occupied";
+   removing the last one disables it again. Swapped out-of-band so the main
+   #deceased-section swap is unaffected. #} -->
+{% include 'cemetery/partials/plot_status_control.html' with oob=True %}

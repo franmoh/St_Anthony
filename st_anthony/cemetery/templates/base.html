@@ -1,0 +1,194 @@
+{% load static static_version %}
+<!DOCTYPE html>
+<html lang="en" style="color-scheme: light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# The only stylesheet. Rebuild after changing Tailwind classes: npx tailwindcss -i st_anthony/theme/static_src/src/styles.css -o st_anthony/cemetery/static/css/output.css #}
+    <link rel="stylesheet" href="{% versioned_static 'css/output.css' %}">
+    <title>{% block title %}St. Anthony Cemetery{% endblock %}</title>
+
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gray-100 flex flex-col">
+
+    <!-- HEADER -->
+    <header class="w-full bg-sky-800 shadow-lg
+            border-b-8 border-t-8 border-t-white border-b-blue-950">
+        <div class="max-w-4/5 mx-auto px-4 sm:px-6 lg:px-12 xl:px-20 2xl:px-32 py-4">
+
+            <div class="flex items-center justify-between">
+                <!-- Logo + Text -->
+                <div class="flex items-center text-gray-200">
+                    <img src="{% static 'img/logo.avif' %}" alt="Logo" class="h-16 lg:h-20 w-auto mr-4">
+                    <ul class="font-bold leading-tight text-sm sm:text-base">
+                        <li>OUR LADY</li>
+                        <li class="italic">of</li>
+                        <li>PEACE PARISH</li>
+                    </ul>
+                </div>
+
+                <!-- Hamburger toggle (small screens only) -->
+                <button type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu"
+                        class="lg:hidden p-2 rounded-md text-gray-200 hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                    <span class="sr-only">Toggle menu</span>
+                    <svg id="nav-icon-open" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg id="nav-icon-close" class="w-8 h-8 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Nav + Admin Login: collapsed on small screens, inline on lg+ -->
+            <div id="nav-menu" class="hidden lg:flex lg:items-center lg:justify-end lg:gap-4 mt-4 lg:mt-0">
+                <nav>
+                    <ul class="flex flex-col lg:flex-row gap-1 lg:gap-2 text-gray-200 font-semibold text-lg">
+                        <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                               href="{% url 'home' %}">Search</a></li>
+                        <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" href="{% url 'plot' %}">Plot Map</a></li>
+                        {% if request.user.is_authenticated and request.user.is_staff %}
+                        <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" href="{% url 'manage_plots' %}">Manage Plots</a></li>
+                        {% endif %}
+                        <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                               href="{% url 'about' %}">About us</a></li>
+                        <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                               href="{% url 'contact' %}">Contact us</a></li>
+                    </ul>
+                </nav>
+
+                <!-- Admin Login -->
+                <div class="lg:border-l lg:border-white/20 lg:pl-4 mt-1 lg:mt-0 text-gray-200 font-semibold text-lg">
+                    {% if request.user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="block w-full text-left lg:inline-flex lg:w-auto items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                            Logout
+                        </button>
+                    </form>
+                    {% else %}
+                    <a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                        href="{% url 'login' %}">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+    <div class="px-4 pt-4 space-y-2">
+        {% for message in messages %}
+        <div class="p-4 rounded-md shadow-sm {% if message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700{% elif message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700{% elif message.tags == 'warning' %}bg-yellow-100 border border-yellow-400 text-yellow-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto pt-4 py-6 text-center text-gray-600">
+        <h6 class="italic text-gray-500 font-light"><a href="https://www.civictechfredericton.com/"
+            target="_blank" class="text-blue-950 hover:underline">Powered by Civic Tech</a></h6>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+
+    <script>
+        // Mobile hamburger menu toggle.
+        (function () {
+            var toggle = document.getElementById('nav-toggle');
+            var menu = document.getElementById('nav-menu');
+            var iconOpen = document.getElementById('nav-icon-open');
+            var iconClose = document.getElementById('nav-icon-close');
+            if (!toggle || !menu) return;
+
+            toggle.addEventListener('click', function () {
+                var isOpen = menu.classList.toggle('hidden') === false;
+                toggle.setAttribute('aria-expanded', String(isOpen));
+                iconOpen.classList.toggle('hidden', isOpen);
+                iconClose.classList.toggle('hidden', !isOpen);
+            });
+
+            // Collapse the menu again if the viewport grows past the mobile breakpoint.
+            var mql = window.matchMedia('(min-width: 1024px)');
+            mql.addEventListener('change', function (e) {
+                if (!e.matches) return;
+                menu.classList.add('hidden');
+                toggle.setAttribute('aria-expanded', 'false');
+                iconOpen.classList.remove('hidden');
+                iconClose.classList.add('hidden');
+            });
+        })();
+
+        // Confirm only when moving a plot/niche from Reserved -> Occupied.
+        // Scoped to the plot status form so other saves (e.g. maintenance) aren't prompted.
+        document.body.addEventListener('htmx:confirm', function (evt) {
+            var form = evt.detail.elt;
+            if (!form || !form.matches('[data-plot-status-form]')) return;
+
+            var select = form.querySelector('select[name="plot_status"]');
+            if (!select) return;  // occupied plots render status read-only (no select)
+
+            if (form.getAttribute('data-current-status') === 'Reserved' && select.value === 'Occupied') {
+                evt.preventDefault();  // stop htmx from issuing immediately
+                if (window.confirm('Mark this plot as Occupied? This is permanent — once occupied, the status can not be changed back to Reserved or Available.')) {
+                    evt.detail.issueRequest(true);
+                }
+            }
+        });
+
+        // Unsaved-changes warning. Forms tagged with [data-dirty-tracked] flip to
+        // dirty on the first input/change. Warn before:
+        //   1. an HTMX swap that would replace #plot-detail-panel from outside a tracked form,
+        //   2. full-page navigation / tab close (beforeunload).
+        document.body.addEventListener('input', function (evt) {
+            var form = evt.target.closest && evt.target.closest('[data-dirty-tracked]');
+            if (form) form.dataset.dirty = 'true';
+        });
+        document.body.addEventListener('change', function (evt) {
+            var form = evt.target.closest && evt.target.closest('[data-dirty-tracked]');
+            if (form) form.dataset.dirty = 'true';
+        });
+        // Submitting the form IS the save — clear dirty so beforeunload doesn't
+        // warn during the navigation that the submit itself triggers.
+        document.body.addEventListener('submit', function (evt) {
+            var form = evt.target;
+            if (form && form.matches && form.matches('[data-dirty-tracked]')) {
+                form.dataset.dirty = 'false';
+            }
+        });
+
+        document.body.addEventListener('htmx:confirm', function (evt) {
+            var target = evt.detail.target;
+            if (!target || target.id !== 'plot-detail-panel') return;
+            // Submitting a tracked form is a save, not an abandonment.
+            var trigger = evt.detail.elt;
+            if (trigger && trigger.closest && trigger.closest('[data-dirty-tracked]')) return;
+
+            var dirty = document.querySelector('#plot-detail-panel [data-dirty-tracked][data-dirty="true"]');
+            if (!dirty) return;
+            evt.preventDefault();
+            if (window.confirm('You have unsaved changes in this panel. Discard them?')) {
+                evt.detail.issueRequest(true);
+            }
+        });
+
+        window.addEventListener('beforeunload', function (evt) {
+            if (document.querySelector('[data-dirty-tracked][data-dirty="true"]')) {
+                evt.preventDefault();
+                evt.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>

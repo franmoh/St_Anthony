@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Login | St. Anthony Cemetery{% endblock %}
+
+{% block content %}
+<section class="mx-auto w-full max-w-md mt-6 px-4 sm:px-0">
+    <div class="border border-gray-200 bg-white shadow-sm">
+        <div class="px-6 sm:px-8 py-5 bg-blue-50 border-b border-blue-100">
+            <h1 class="text-2xl font-bold text-sky-900">Admin Login</h1>
+            <p class="mt-1 text-sm text-sky-800">Sign in to access management features.</p>
+        </div>
+
+        <div class="p-6 sm:p-8">
+            {% if login_error %}
+            {% include "cemetery/partials/alert.html" with variant="error" message=login_error square=True %}
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div>
+                    <label for="username" class="mb-1.5 block text-sm font-medium text-gray-800">Username</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        value="{{ username }}"
+                        autocomplete="username"
+                        required
+                        class="w-full border border-gray-200 bg-white px-3 py-2.5 text-base text-gray-800 outline-none ring-sky-700 transition focus:ring-2"
+                    >
+                </div>
+
+                <div>
+                    <label for="password" class="mb-1.5 block text-sm font-medium text-gray-800">Password</label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                        class="w-full border border-gray-200 bg-white px-3 py-2.5 text-base text-gray-800 outline-none ring-sky-700 transition focus:ring-2"
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-blue-950 px-4 py-2.5 font-semibold text-white transition hover:bg-sky-800"
+                >
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

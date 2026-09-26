@@ -1,0 +1,57 @@
+{% load gender_extras name_extras %}
+{% if search_performed %}
+    {% if not search_error and info %}
+        <!-- Result count displayed outside the card (like back to search button) -->
+        <div class="mb-3 text-left">
+            <p class="text-sm text-gray-600">
+                {% with total=page_obj.paginator.count %}
+                {% if page_obj.paginator.num_pages > 1 %}Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {% else %}Found {% endif %}{{ total }} result{{ total|pluralize }}
+                {% endwith %}
+            </p>
+        </div>
+    {% endif %}
+
+    <!-- Results Section: error, results, and no-results states all share the same centered layout -->
+    <div class="flex justify-center">
+        {% if search_error %}
+            {% include "cemetery/partials/empty_state.html" with title="Invalid search" message=search_error %}
+        {% elif info %}
+            <!-- Results Card - matching size and style of deceased/plot details card -->
+            <div class="bg-white border border-gray-200 shadow-sm w-full">
+
+                <div class="divide-y divide-gray-100">
+                    {% for item in info %}
+                        <a href="{% url 'detail' %}?id={{ item.id }}"
+                           class="flex items-center justify-center px-4 py-2.5
+                                    hover:bg-blue-50 transition-colors duration-150">
+                            <span class="text-blue-900 text-sm font-medium">
+                                {{ item.first_name }}
+                                {% if item.middle_name %}
+                                    {{ item.middle_name|middle_name }}
+                                {% endif %}
+                                {{ item.last_name }}{% if item.gender or item.dob_year or item.dod_year %},{% endif %}
+                                <span class="text-gray-500 text-xs sm:text-sm">
+                                    {% if item.gender %}
+                                        {{ item.gender|gender_code }}{% if item.dob_year or item.dod_year %},{% endif %}
+                                    {% endif %}
+                                    {% if item.dob_year or item.dod_year %}
+                                        {{ item.dob_year|default:'?' }} – {{ item.dod_year|default:'?' }}
+                                    {% endif %}
+                                </span>
+                            </span>
+                        </a>
+                    {% empty %}
+                        <!-- This case shouldn't trigger due to outer condition, but kept for safety -->
+                        <div class="text-center py-8">
+                            <p class="text-gray-500">No matching records found.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% include "cemetery/partials/search_pagination.html" %}
+            </div>
+        {% else %}
+            {% include "cemetery/partials/empty_state.html" with title="No results found" message=no_results_message hint="Try checking the spelling or using fewer keywords..." %}
+        {% endif %}
+    </div>
+{% endif %}

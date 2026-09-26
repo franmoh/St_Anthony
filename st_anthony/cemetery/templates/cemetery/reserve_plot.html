@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Reserve Plot {{ plot.plot_id }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-6">
+    <a href="{% url 'manage_plots' %}" class="text-sm text-blue-900 hover:text-blue-700 hover:underline mb-4 inline-block">
+        &larr; Back to Manage Plots
+    </a>
+
+    {% if errors %}
+        {% include "cemetery/partials/alert.html" with variant="error" heading="Please fix the following:" messages=errors.values %}
+    {% endif %}
+
+    <form method="POST" data-dirty-tracked class="bg-white border-4 border-double border-blue-950 p-8 shadow-lg font-serif">
+        {% csrf_token %}
+
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-950 tracking-wide">St. Anthony's Cemetery</h1>
+            <p class="text-sm italic text-gray-600">FREDERICTON, N.B.</p>
+        </div>
+
+        <div class="flex justify-between items-end mb-6 text-sm">
+            <div>
+                <span class="font-medium">No.</span>
+                <span class="italic text-gray-500 ml-2">(assigned on save)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="font-medium">Day of</label>
+                <input type="date" name="date_of"
+                       value="{% if form_data %}{{ form_data.date_of }}{% else %}{{ today|date:'Y-m-d' }}{% endif %}"
+                       class="border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1">
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Received from</label>
+            <div class="grid grid-cols-3 gap-3">
+                <input type="text" name="first_name" placeholder="First name" required
+                       value="{{ form_data.first_name|default:'' }}"
+                       class="w-full border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1">
+                <input type="text" name="middle_name" placeholder="Middle name"
+                       value="{{ form_data.middle_name|default:'' }}"
+                       class="w-full border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1">
+                <input type="text" name="last_name" placeholder="Last name" required
+                       value="{{ form_data.last_name|default:'' }}"
+                       class="w-full border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1">
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Of</label>
+            <input type="text" name="address" placeholder="Address"
+                   value="{{ form_data.address|default:'' }}"
+                   class="w-full border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1">
+        </div>
+
+        {% if plot.is_columbarium_niche %}
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Deposit received</label>
+            <div class="flex items-center gap-2">
+                <span>$</span>
+                <input type="number" name="deposit" step="0.01" min="0.01" max="99999999.99" required
+                       placeholder="0.00"
+                       value="{{ form_data.deposit|default:'' }}"
+                       class="flex-1 border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1 px-2">
+                <span>Dollars</span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Total price (deposit + engraving)</label>
+            <div class="flex items-center gap-2">
+                <span>$</span>
+                <input type="number" name="total" step="0.01" min="0.01" max="99999999.99" required
+                       placeholder="0.00"
+                       value="{{ form_data.total|default:'' }}"
+                       class="flex-1 border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1 px-2">
+                <span>Dollars</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 italic">Niche reservations are marked Partial until engraving is finalized.</p>
+        </div>
+        {% else %}
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">the Sum of</label>
+            <div class="flex items-center gap-2">
+                <span>$</span>
+                <input type="number" name="amount" step="0.01" min="0.01" max="99999999.99" required
+                       placeholder="0.00"
+                       value="{{ form_data.amount|default:'' }}"
+                       class="flex-1 border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1 px-2">
+                <span>Dollars</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 italic">Reservation requires payment in full.</p>
+        </div>
+        {% endif %}
+
+        <div class="mb-4">
+            <p class="text-sm">
+                <span class="font-medium">For plot No.</span>
+                <span class="inline-block border-b border-gray-800 px-3 py-1 mx-2 font-bold">{{ plot.plot_id }}</span>
+                <span class="font-medium">situated on</span>
+            </p>
+            <div class="mt-2 pl-4 text-sm text-gray-800 border-b border-gray-800 py-1">
+                {{ plot.section.section_constant }}
+                {% if plot.row %}, Row {{ plot.row }}{% endif %}
+                {% if plot.unit %}, Unit {{ plot.unit }}{% endif %}
+                {% if plot.side %}, Side {{ plot.side }}{% endif %}
+                {% if plot.niche %}, Niche {{ plot.niche }}{% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 mb-6 mt-8">
+            <div>
+                <input type="text" name="signature" placeholder="Typed signature"
+                       value="{{ form_data.signature|default:'' }}"
+                       class="w-full border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1">
+                <p class="text-xs text-gray-600 mt-1">Signature</p>
+            </div>
+            <div>
+                <input type="text" name="witness" placeholder="Witness name"
+                       value="{{ form_data.witness|default:'' }}"
+                       class="w-full border-b border-gray-800 bg-transparent focus:outline-none focus:border-blue-600 py-1">
+                <p class="text-xs text-gray-600 mt-1">Witness</p>
+            </div>
+        </div>
+
+        <details class="mt-6 border border-gray-200 rounded-xl font-sans"{% if errors.deceased_status or errors.deceased_first_name or errors.deceased_last_name or errors.deceased_middle_name or errors.deceased_gender or errors.deceased_dob or errors.deceased_dod or errors.deceased_date_buried or errors.deceased_zone_id or form_data.deceased_status %} open{% endif %}>
+            <summary class="cursor-pointer p-4 text-sm font-bold text-gray-700 bg-gray-50">
+                Deceased information (optional)
+            </summary>
+            <div class="p-4 space-y-3 text-xs">
+                <p class="text-gray-600 italic">
+                    Skip this section for future-use reservations. For pre-need reservations, set status to "L" (Living) and enter the person's details.
+                </p>
+
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1">Status</label>
+                    <select name="deceased_status"
+                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        <option value="">— No deceased information —</option>
+                        {% for s in deceased_statuses %}
+                        <option value="{{ s.pk }}" {% if form_data.deceased_status|stringformat:'s' == s.pk|stringformat:'s' %}selected{% endif %}>
+                            {{ s.display_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.deceased_status %}<p class="text-red-600 mt-1">{{ errors.deceased_status }}</p>{% endif %}
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">First name</label>
+                        <input type="text" name="deceased_first_name" maxlength="100"
+                               value="{{ form_data.deceased_first_name|default:'' }}"
+                               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        {% if errors.deceased_first_name %}<p class="text-red-600 mt-1">{{ errors.deceased_first_name }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Middle name</label>
+                        <input type="text" name="deceased_middle_name" maxlength="100"
+                               value="{{ form_data.deceased_middle_name|default:'' }}"
+                               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        {% if errors.deceased_middle_name %}<p class="text-red-600 mt-1">{{ errors.deceased_middle_name }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Last name</label>
+                        <input type="text" name="deceased_last_name" maxlength="100"
+                               value="{{ form_data.deceased_last_name|default:'' }}"
+                               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        {% if errors.deceased_last_name %}<p class="text-red-600 mt-1">{{ errors.deceased_last_name }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Date of birth</label>
+                        <input type="date" name="deceased_dob"
+                               value="{{ form_data.deceased_dob|default:'' }}"
+                               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        {% if errors.deceased_dob %}<p class="text-red-600 mt-1">{{ errors.deceased_dob }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Date of death</label>
+                        <input type="date" name="deceased_dod"
+                               value="{{ form_data.deceased_dod|default:'' }}"
+                               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        {% if errors.deceased_dod %}<p class="text-red-600 mt-1">{{ errors.deceased_dod }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid {% if plot.is_columbarium_niche %}grid-cols-2{% else %}grid-cols-3{% endif %} gap-2">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Date buried</label>
+                        <input type="date" name="deceased_date_buried"
+                               value="{{ form_data.deceased_date_buried|default:'' }}"
+                               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        {% if errors.deceased_date_buried %}<p class="text-red-600 mt-1">{{ errors.deceased_date_buried }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Gender</label>
+                        <select name="deceased_gender"
+                                class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                            <option value="">—</option>
+                            <option value="M" {% if form_data.deceased_gender == 'M' %}selected{% endif %}>Male</option>
+                            <option value="F" {% if form_data.deceased_gender == 'F' %}selected{% endif %}>Female</option>
+                            <option value="O" {% if form_data.deceased_gender == 'O' %}selected{% endif %}>Other</option>
+                        </select>
+                        {% if errors.deceased_gender %}<p class="text-red-600 mt-1">{{ errors.deceased_gender }}</p>{% endif %}
+                    </div>
+                    {% if not plot.is_columbarium_niche %}
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">Zone (0–8)</label>
+                        <input type="number" name="deceased_zone_id" min="0" max="8"
+                               value="{{ form_data.deceased_zone_id|default:'0' }}"
+                               class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                        {% if errors.deceased_zone_id %}<p class="text-red-600 mt-1">{{ errors.deceased_zone_id }}</p>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </details>
+
+        <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl font-sans">
+            <h3 class="text-sm font-bold text-gray-700 mb-2">Contact information (digital record)</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Phone number</label>
+                    <input type="tel" name="phone_number"
+                           value="{{ form_data.phone_number|default:'' }}"
+                           class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" name="email"
+                           value="{{ form_data.email|default:'' }}"
+                           class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                </div>
+            </div>
+        </div>
+
+        <button type="submit"
+                class="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 px-4 rounded-xl transition-colors font-sans">
+            Submit Reservation
+        </button>
+    </form>
+</div>
+{% endblock %}

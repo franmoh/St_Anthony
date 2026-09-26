@@ -1,0 +1,19 @@
+<div id="engraving-region"{% if oob %} hx-swap-oob="true"{% endif %}>
+{% if pending_niche_payment %}
+<div class="mb-4 p-3 bg-amber-50 border border-amber-300 rounded text-sm text-amber-900">
+    <p class="font-medium">Engraving pending</p>
+    <p>Deposit paid: ${{ pending_niche_payment.balance_paid }} · Balance due: ${{ pending_niche_payment.balance_due }}</p>
+</div>
+<form hx-post="{% url 'mark_engraving_complete' pk=plot.pk %}"
+      hx-target="#plot-detail-panel"
+      hx-swap="innerHTML"
+      hx-confirm="Mark engraving complete? This will record the remaining ${{ pending_niche_payment.balance_due }} as paid in full."
+      class="mb-4">
+    {% csrf_token %}
+    <button type="submit"
+            class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors">
+        Mark Engraving Complete
+    </button>
+</form>
+{% endif %}
+</div>

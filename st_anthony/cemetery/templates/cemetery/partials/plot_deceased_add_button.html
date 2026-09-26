@@ -1,0 +1,15 @@
+<div id="deceased-add-region" class="mt-2">
+    {% if plot.plot_status == 'Available' %}
+    <p class="text-sm text-gray-500 italic">Reserve this plot to add a deceased record.</p>
+    {% elif plot.is_columbarium_niche and deceased_list|length >= 2 %}
+    <p class="text-sm text-gray-500 italic">This niche is full (2/2 ashes recorded).</p>
+    {% else %}
+    <button type="button"
+            hx-get="{% url 'add_deceased' pk=plot.pk %}"
+            hx-target="#deceased-add-region"
+            hx-swap="outerHTML"
+            class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded">
+        + Add Deceased
+    </button>
+    {% endif %}
+</div>

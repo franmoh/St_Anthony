@@ -1,0 +1,36 @@
+<div id="plot-note-section" class="mb-4">
+    <h4 class="text-base font-bold text-gray-700 mb-2 border-b pb-1">Note</h4>
+
+    {% if plot.note %}
+    <div class="mb-2 p-3 bg-blue-50 border border-blue-200 text-base">
+        <p class="text-blue-900 whitespace-pre-wrap">{{ plot.note.note }}</p>
+    </div>
+    <div class="flex gap-2">
+        <button type="button"
+                hx-get="{% url 'edit_note' pk=plot.pk %}"
+                hx-target="#plot-note-section"
+                hx-swap="outerHTML"
+                class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1.5 rounded-lg transition-colors">
+            Edit
+        </button>
+        <button type="button"
+                hx-post="{% url 'delete_note' pk=plot.pk %}"
+                hx-target="#plot-note-section"
+                hx-swap="outerHTML"
+                hx-confirm="Delete this note? This cannot be undone."
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1.5 rounded-lg transition-colors">
+            Delete
+        </button>
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-500 italic mb-2">No note recorded for this plot.</p>
+    <button type="button"
+            hx-get="{% url 'edit_note' pk=plot.pk %}"
+            hx-target="#plot-note-section"
+            hx-swap="outerHTML"
+            class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded">
+        + Add Note
+    </button>
+    {% endif %}
+</div>

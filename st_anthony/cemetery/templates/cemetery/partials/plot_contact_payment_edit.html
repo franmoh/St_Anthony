@@ -1,0 +1,104 @@
+<div id="mapping-{{ c.pk }}-body" class="pt-2">
+    <form hx-post="{% url 'edit_plot_contact_payment' mapping_pk=c.pk %}"
+          hx-target="#mapping-{{ c.pk }}-body"
+          hx-swap="outerHTML"
+          data-payment-edit-form
+          data-dirty-tracked
+          class="space-y-2 text-sm">
+        {% csrf_token %}
+
+        <h5 class="font-bold text-gray-700">{% if payment %}Edit Payment{% else %}Record Payment{% endif %}</h5>
+
+        <div>
+            <label class="block font-medium text-gray-700">Status *</label>
+            <select name="payment_status"
+                    class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% for ps in payment_statuses %}
+                <option value="{{ ps.pk }}" data-constant="{{ ps.payment_status_constant }}"
+                    {% if form_data %}{% if form_data.payment_status|stringformat:'s' == ps.pk|stringformat:'s' %}selected{% endif %}
+                    {% elif payment and payment.payment_status_id == ps.pk %}selected{% endif %}>
+                    {{ ps.payment_status_constant }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if errors.payment_status %}<p class="text-red-600">{{ errors.payment_status }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block font-medium text-gray-700">Amount paid ($)</label>
+            <input type="number" step="0.01" min="0" max="99999999.99" name="balance_paid"
+                   value="{% if form_data %}{{ form_data.balance_paid }}{% elif payment %}{{ payment.balance_paid }}{% else %}0.00{% endif %}"
+                   class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+            {% if errors.balance_paid %}<p class="text-red-600">{{ errors.balance_paid }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block font-medium text-gray-700">Balance due ($)</label>
+            <input type="number" step="0.01" min="0" max="99999999.99" name="balance_due"
+                   value="{% if form_data %}{{ form_data.balance_due }}{% elif payment %}{{ payment.balance_due }}{% else %}0.00{% endif %}"
+                   class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+            {% if errors.balance_due %}<p class="text-red-600">{{ errors.balance_due }}</p>{% endif %}
+            <p class="text-xs text-gray-500 mt-1 italic">
+                Auto-adjusts when Amount paid changes (keeps total fixed). Forced to 0 when status is PAID.
+            </p>
+        </div>
+
+        <div>
+            <label class="block font-medium text-gray-700">Date paid</label>
+            <input type="date" name="date_paid"
+                   value="{% if form_data %}{{ form_data.date_paid }}{% elif payment.date_paid %}{{ payment.date_paid|date:'Y-m-d' }}{% endif %}"
+                   class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+            {% if errors.date_paid %}<p class="text-red-600">{{ errors.date_paid }}</p>{% endif %}
+        </div>
+
+        <div class="flex gap-2 pt-1">
+            <button type="submit"
+                    class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg transition-colors">
+                Save
+            </button>
+            <button type="button"
+                    hx-get="{% url 'plot_contact_card' mapping_pk=c.pk %}"
+                    hx-target="#mapping-{{ c.pk }}-body"
+                    hx-swap="outerHTML"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 rounded-lg transition-colors">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+(function () {
+    const form = document.querySelector('[data-payment-edit-form]');
+    if (!form) return;
+    const paid = form.querySelector('[name="balance_paid"]');
+    const due = form.querySelector('[name="balance_due"]');
+    const status = form.querySelector('[name="payment_status"]');
+    if (!paid || !due || !status) return;
+
+    const total = (parseFloat(paid.value) || 0) + (parseFloat(due.value) || 0);
+
+    function isPaidSelected() {
+        const opt = status.options[status.selectedIndex];
+        return opt && opt.dataset.constant === 'PAID';
+    }
+
+    function syncDueLock() {
+        if (isPaidSelected()) {
+            due.value = '0.00';
+            due.readOnly = true;
+            due.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+        } else {
+            due.readOnly = false;
+            due.classList.remove('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+        }
+    }
+
+    paid.addEventListener('input', () => {
+        if (isPaidSelected()) return;
+        const p = parseFloat(paid.value) || 0;
+        due.value = Math.max(0, total - p).toFixed(2);
+    });
+    status.addEventListener('change', syncDueLock);
+    syncDueLock();
+})();
+</script>

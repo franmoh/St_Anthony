@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Plots - St. Anthony Cemetery{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl sm:text-4xl font-bold text-blue-950 tracking-tight">Manage Plots</h1>
+</div>
+{% include "cemetery/partials/plot_status_filter.html" %}
+{% include "cemetery/partials/plot_selection.html" %}
+
+<div class="flex flex-col lg:flex-row gap-6">
+
+    <!-- Plot Map -->
+    <div id="plot-section-view" class="flex-1 min-w-0 transition-opacity [&.htmx-request]:opacity-50">
+        {% include "cemetery/partials/plot_section_view.html" %}
+    </div>
+
+    <!-- Detail Panel (HTMX target) -->
+    <div id="plot-detail-panel"
+         class="w-full lg:w-96 lg:min-h-[400px] bg-white border border-gray-200 shadow-sm lg:sticky lg:top-6 self-start">
+        <p class="text-gray-400 text-base text-center p-5 mt-20">
+            Click a plot to view and edit its details.
+        </p>
+    </div>
+
+</div>
+{% endblock %}

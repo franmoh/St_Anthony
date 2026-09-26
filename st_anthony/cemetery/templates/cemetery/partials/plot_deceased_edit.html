@@ -1,0 +1,119 @@
+<div id="deceased-{{ d.pk }}-body" class="pt-2">
+    <form hx-post="{% url 'edit_deceased' pk=d.pk %}"
+          hx-target="#deceased-{{ d.pk }}-body"
+          hx-swap="outerHTML"
+          data-dirty-tracked
+          class="space-y-2 text-sm">
+        {% csrf_token %}
+
+        <div>
+            <label class="block font-medium text-gray-700">Status *</label>
+            <select name="deceased_status" required
+                    class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% for s in deceased_statuses %}
+                <option value="{{ s.pk }}"
+                    {% if form_data %}{% if form_data.deceased_status|stringformat:'s' == s.pk|stringformat:'s' %}selected{% endif %}
+                    {% else %}{% if d.deceased_status_id == s.pk %}selected{% endif %}{% endif %}>
+                    {{ s.display_name }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if errors.deceased_status %}<p class="text-red-600">{{ errors.deceased_status }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+            <div>
+                <label class="block font-medium text-gray-700">First name</label>
+                <input type="text" name="deceased_first_name" maxlength="100" required
+                       value="{% if form_data %}{{ form_data.deceased_first_name }}{% else %}{{ d.first_name|default_if_none:'' }}{% endif %}"
+                       class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% if errors.deceased_first_name %}<p class="text-red-600">{{ errors.deceased_first_name }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700">Middle name</label>
+                <input type="text" name="deceased_middle_name" maxlength="100"
+                       value="{% if form_data %}{{ form_data.deceased_middle_name }}{% else %}{{ d.middle_name|default_if_none:'' }}{% endif %}"
+                       class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% if errors.deceased_middle_name %}<p class="text-red-600">{{ errors.deceased_middle_name }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700">Last name</label>
+                <input type="text" name="deceased_last_name" maxlength="100" required
+                       value="{% if form_data %}{{ form_data.deceased_last_name }}{% else %}{{ d.last_name|default_if_none:'' }}{% endif %}"
+                       class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% if errors.deceased_last_name %}<p class="text-red-600">{{ errors.deceased_last_name }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                <label class="block font-medium text-gray-700">Date of birth</label>
+                <input type="date" name="deceased_dob"
+                       value="{% if form_data %}{{ form_data.deceased_dob }}{% else %}{{ d.dob_iso }}{% endif %}"
+                       class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% if errors.deceased_dob %}<p class="text-red-600">{{ errors.deceased_dob }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700">Date of death</label>
+                <input type="date" name="deceased_dod"
+                       value="{% if form_data %}{{ form_data.deceased_dod }}{% else %}{{ d.dod_iso }}{% endif %}"
+                       class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% if errors.deceased_dod %}<p class="text-red-600">{{ errors.deceased_dod }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="grid {% if d.plot.is_columbarium_niche %}grid-cols-2{% else %}grid-cols-3{% endif %} gap-2">
+            <div>
+                <label class="block font-medium text-gray-700">Date buried</label>
+                <input type="date" name="deceased_date_buried"
+                       value="{% if form_data %}{{ form_data.deceased_date_buried }}{% else %}{{ d.date_buried|date:'Y-m-d' }}{% endif %}"
+                       class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% if errors.deceased_date_buried %}<p class="text-red-600">{{ errors.deceased_date_buried }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block font-medium text-gray-700">Gender</label>
+                {% if form_data %}{% with current=form_data.deceased_gender %}
+                <select name="deceased_gender"
+                        class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                    <option value="">—</option>
+                    <option value="M" {% if current == 'M' %}selected{% endif %}>Male</option>
+                    <option value="F" {% if current == 'F' %}selected{% endif %}>Female</option>
+                    <option value="O" {% if current == 'O' %}selected{% endif %}>Other</option>
+                </select>
+                {% endwith %}{% else %}{% with current=d.gender|default_if_none:'' %}
+                <select name="deceased_gender"
+                        class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                    <option value="">—</option>
+                    <option value="M" {% if current == 'M' %}selected{% endif %}>Male</option>
+                    <option value="F" {% if current == 'F' %}selected{% endif %}>Female</option>
+                    <option value="O" {% if current == 'O' %}selected{% endif %}>Other</option>
+                </select>
+                {% endwith %}{% endif %}
+                {% if errors.deceased_gender %}<p class="text-red-600">{{ errors.deceased_gender }}</p>{% endif %}
+            </div>
+            {% if not d.plot.is_columbarium_niche %}
+            <div>
+                <label class="block font-medium text-gray-700">Zone (0 = body, 1–8 = ashes)</label>
+                <input type="number" name="deceased_zone_id" min="0" max="8"
+                       value="{% if form_data %}{{ form_data.deceased_zone_id }}{% else %}{{ d.zone_id }}{% endif %}"
+                       class="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% if errors.deceased_zone_id %}<p class="text-red-600">{{ errors.deceased_zone_id }}</p>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="flex gap-2 pt-1">
+            <button type="submit"
+                    class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg transition-colors">
+                Save
+            </button>
+            <button type="button"
+                    hx-get="{% url 'deceased_card' pk=d.pk %}"
+                    hx-target="#deceased-{{ d.pk }}-body"
+                    hx-swap="outerHTML"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 rounded-lg transition-colors">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,25 @@
+<div id="plot-status-control" class="mb-3"{% if oob %} hx-swap-oob="true"{% endif %}>
+    <label class="block text-base font-medium text-gray-700 mb-1">Status</label>
+    {% if plot.plot_status == 'Occupied' %}
+    <p class="w-full border border-gray-200 bg-gray-100 rounded px-3 py-2 text-base text-gray-700">
+        Occupied <span class="text-sm text-gray-500">(final — cannot be changed)</span>
+    </p>
+    {% else %}
+    <select name="plot_status"
+            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none">
+        {% for value, label in status_choices %}
+        <option value="{{ value }}"
+            {% if plot.plot_status == value %}selected{% endif %}
+            {% if plot.plot_status == 'Reserved' and value == 'Available' %}disabled{% endif %}
+            {% if plot.plot_status == 'Available' and value == 'Reserved' %}disabled{% endif %}
+            {% if plot.plot_status == 'Available' and value == 'Occupied' %}disabled{% endif %}
+            {% if plot.plot_status == 'Reserved' and value == 'Occupied' and not deceased_list %}disabled{% endif %}>
+            {{ label }}
+        </option>
+        {% endfor %}
+    </select>
+    {% if plot.plot_status == 'Reserved' and not deceased_list %}
+    <p class="mt-1 text-sm text-gray-500">Add a deceased record below to enable marking this plot as Occupied.</p>
+    {% endif %}
+    {% endif %}
+</div>

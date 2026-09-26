@@ -1,0 +1,19 @@
+<div id="newsletter-form-wrapper">
+    {% if subscribed %}
+        {% include "cemetery/partials/alert.html" with variant="success" message="You're subscribed! Thanks for joining our mailing list." square=True %}
+    {% else %}
+        {% if error %}
+            {% include "cemetery/partials/alert.html" with variant="error" message=error square=True %}
+        {% endif %}
+        <form hx-post="{% url 'newsletter_subscribe' %}" hx-target="#newsletter-form-wrapper" hx-swap="outerHTML"
+              class="flex flex-col sm:flex-row gap-3">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Email" value="{{ email|default:'' }}"
+                   class="w-full sm:flex-1 h-11 border border-gray-200 px-4 text-base bg-white
+                       focus:outline-none focus:ring-2 focus:ring-sky-700 focus:border-transparent">
+            <button type="submit" class="bg-blue-950 text-white px-5 h-11 text-base font-semibold hover:bg-sky-800 transition-colors whitespace-nowrap">
+                Subscribe Now
+            </button>
+        </form>
+    {% endif %}
+</div>

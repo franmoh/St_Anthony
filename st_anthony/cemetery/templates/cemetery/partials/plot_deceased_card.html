@@ -1,0 +1,48 @@
+{% load gender_extras %}
+<div id="deceased-{{ d.pk }}-body" class="pt-2 space-y-2 text-sm">
+    <div class="space-y-0.5">
+        <p class="text-gray-700">
+            <span class="font-medium">Name:</span>
+            {{ d.first_name }}
+            {% if d.middle_name %}{{ d.middle_name }}{% endif %}
+            {{ d.last_name }}
+        </p>
+        {% if d.dob_year or d.dod_year %}
+        <p class="text-gray-700">
+            <span class="font-medium">Years:</span>
+            {% if d.dob_year %}{{ d.dob_year }}{% else %}?{% endif %}
+            &ndash;
+            {% if d.dod_year %}{{ d.dod_year }}{% else %}?{% endif %}
+        </p>
+        {% endif %}
+        {% if d.gender %}
+        <p class="text-gray-700"><span class="font-medium">Gender:</span> {{ d.gender|gender_code }}</p>
+        {% endif %}
+        {% if d.date_buried %}
+        <p class="text-gray-700"><span class="font-medium">Date buried:</span> {{ d.date_buried|date:'Y-m-d' }}</p>
+        {% endif %}
+        <p class="text-gray-700">
+            <span class="font-medium">Status:</span>
+            {{ d.deceased_status.display_name }}{% if not d.plot.is_columbarium_niche %} (Zone {{ d.zone_id }}){% endif %}
+        </p>
+    </div>
+
+    <div class="flex gap-2 pt-1">
+        <button type="button"
+                hx-get="{% url 'edit_deceased' pk=d.pk %}"
+                hx-target="#deceased-{{ d.pk }}-body"
+                hx-swap="outerHTML"
+                class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 rounded-lg transition-colors">
+            Edit
+        </button>
+        <button type="button"
+                hx-post="{% url 'delete_deceased' pk=d.pk %}"
+                hx-target="#deceased-section"
+                hx-swap="outerHTML"
+                hx-confirm="Delete this deceased record? This cannot be undone."
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-colors">
+            Delete
+        </button>
+    </div>
+</div>

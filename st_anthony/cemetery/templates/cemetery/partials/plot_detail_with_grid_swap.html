@@ -1,0 +1,11 @@
+{% include 'cemetery/partials/plot_detail.html' %}
+{% if plot.is_columbarium_niche %}
+{% include 'cemetery/partials/plot_grid_niche_button.html' with p=plot detail_url_name='manage_plot_detail' section_constant=plot.section.section_constant hx_swap_oob='true' %}
+{% else %}
+<template>
+{% include 'cemetery/partials/plot_grid_button.html' with p=plot detail_url_name='manage_plot_detail' section_constant=plot.section.section_constant hx_swap_oob='true' %}
+</template>
+{% endif %}
+{% if section_stats_item %}
+{% include 'cemetery/partials/plot_section_stats.html' with item=section_stats_item hx_swap_oob='true' %}
+{% endif %}

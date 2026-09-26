@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificate — Plot {{ plot.plot_id }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white !important; }
+        header, footer { display: none !important; }
+        main { padding: 0 !important; }
+        .certificate { box-shadow: none !important; border: 4px double #1e3a8a !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-6">
+    <div class="no-print mb-4 flex items-center">
+        <a href="{% url 'manage_plots' %}" class="text-sm text-blue-900 hover:text-blue-700 hover:underline">
+            &larr; Back to Manage Plots
+        </a>
+        <button onclick="window.print()"
+                class="ml-auto bg-blue-950 hover:bg-sky-800 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-colors">
+            Print Certificate
+        </button>
+    </div>
+
+    {% if request.GET.fresh %}
+    <div class="no-print mb-4 p-4 bg-green-50 border border-green-200 text-green-800 text-sm rounded-xl">
+        Reservation saved. Plot {{ plot.plot_id }} is now Reserved.
+    </div>
+    {% endif %}
+
+    <div class="certificate bg-white border-4 border-double border-blue-950 p-8 shadow-lg font-serif">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-950 tracking-wide">St. Anthony's Cemetery</h1>
+            <p class="text-sm italic text-gray-600">FREDERICTON, N.B.</p>
+        </div>
+
+        <div class="flex justify-between mb-6 text-sm">
+            <div>
+                <span class="font-medium">No.</span>
+                <span class="ml-2 font-bold">{{ history.cert_number|default:history.pk }}</span>
+            </div>
+            <div>
+                <span class="font-medium">Day of</span>
+                <span class="ml-2 border-b border-gray-800 px-3">{{ history.created_date|date:'F j, Y' }}</span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <p class="text-sm font-medium">Received from</p>
+            <p class="text-base border-b border-gray-800 py-1">
+                {{ history.first_name }}
+                {% if history.middle_name %}{{ history.middle_name }}{% endif %}
+                {{ history.last_name }}
+            </p>
+        </div>
+
+        {% if history.address %}
+        <div class="mb-4">
+            <p class="text-sm font-medium">Of</p>
+            <p class="text-base border-b border-gray-800 py-1">{{ history.address }}</p>
+        </div>
+        {% endif %}
+
+        <div class="mb-4">
+            <p class="text-sm font-medium">the Sum of</p>
+            <p class="text-base border-b border-gray-800 py-1">
+                $ {{ history.amount_paid }} Dollars
+            </p>
+        </div>
+
+        {% if plot.is_columbarium_niche %}
+        <div class="mb-4">
+            <p class="text-sm">
+                <span class="font-medium">For columbarium niche situated on</span>
+            </p>
+            <div class="mt-2 pl-4 text-base text-gray-800 border-b border-gray-800 py-1 font-semibold">
+                {{ plot.section.section_constant }}{% if plot.row %}, {{ plot.row }} of Monument{% endif %}, Unit {{ plot.unit }}, Side {{ plot.side }}, Niche {{ plot.niche }}
+            </div>
+        </div>
+        {% else %}
+        <div class="mb-4">
+            <p class="text-sm">
+                <span class="font-medium">For plot No.</span>
+                <span class="inline-block border-b border-gray-800 px-3 py-1 mx-2 font-bold">{{ plot.plot_id }}</span>
+                <span class="font-medium">situated on</span>
+            </p>
+            <div class="mt-2 pl-4 text-sm text-gray-800 border-b border-gray-800 py-1">
+                {{ plot.section.section_constant }}
+                {% if plot.row %}, Row {{ plot.row }}{% endif %}
+                {% if plot.unit %}, Unit {{ plot.unit }}{% endif %}
+                {% if plot.side %}, Side {{ plot.side }}{% endif %}
+                {% if plot.niche %}, Niche {{ plot.niche }}{% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-2 gap-6 mb-2 mt-10">
+            <div>
+                <div class="border-b border-gray-800 py-1 min-h-[1.75rem] text-base">
+                    {{ history.reserved_by_name|default:'' }}
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Signature</p>
+            </div>
+            <div>
+                <div class="border-b border-gray-800 py-1 min-h-[1.75rem] text-base">
+                    {{ history.witness_name|default:'' }}
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Witness</p>
+            </div>
+        </div>
+
+        {% if history.phone_number or history.email %}
+        <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl font-sans text-sm">
+            <h3 class="font-bold text-gray-700 mb-2">Contact information</h3>
+            {% if history.phone_number %}<p>Phone: {{ history.phone_number }}</p>{% endif %}
+            {% if history.email %}<p>Email: {{ history.email }}</p>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

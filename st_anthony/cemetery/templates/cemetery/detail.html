@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}{% if info %}{{ info.first_name|default:'' }} {{ info.last_name|default:'' }} | {% endif %}Personal Information{% endblock %}
+
+{% block content %}
+{% load status_extras gender_extras name_extras %}
+
+<div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    {% if info %}
+    {% with plot=info.plot person_status=info.deceased_status.deceased_status_constant|default:''|upper %}
+
+    <!-- Back to results: returns to the paginated search if we came from it -->
+    <div class="mt-6 mb-4">
+        <a href="{% url 'home' %}"
+           onclick="if (document.referrer.indexOf(location.origin) === 0 && history.length > 1) { history.back(); return false; }"
+           class="inline-flex items-center gap-1 text-sm font-medium text-sky-800 hover:text-sky-950 hover:underline">
+            &larr; Back to search
+        </a>
+    </div>
+
+    <!-- Profile -->
+    <section class="bg-white border border-gray-200 shadow-sm" aria-labelledby="person-name">
+        <div class="px-5 sm:px-6 py-5 bg-blue-50 border-b border-blue-100 flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+                <p class="text-xs font-semibold uppercase tracking-wider text-sky-700">Personal Information</p>
+                <h1 id="person-name" class="mt-1 text-2xl sm:text-3xl font-bold text-sky-950 tracking-tight break-words">
+                    {{ info.first_name|default:'' }}
+                    {% if info.middle_name %}{{ info.middle_name|middle_name }}{% endif %}
+                    {{ info.last_name|default:'' }}
+                </h1>
+                {% if info.lifespan %}
+                <p class="mt-1 text-base text-sky-800">
+                    {{ info.lifespan }}{% if person_status != 'L' and info.age_at_death is not None %} &middot; aged about {{ info.age_at_death }}{% endif %}
+                </p>
+                {% endif %}
+            </div>
+            {% if person_status == 'L' %}
+            <span class="inline-flex items-center rounded-full bg-white text-sky-800 border border-sky-200 text-xs font-semibold px-3 py-1">Living</span>
+            {% else %}
+            <span class="inline-flex items-center rounded-full bg-red-100 text-red-700 border border-red-200 text-xs font-semibold px-3 py-1">Deceased</span>
+            {% endif %}
+        </div>
+        <dl class="p-5 sm:p-6 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-5">
+            {% include "cemetery/partials/detail_field.html" with label="Born" value=info.dob_display %}
+            {% if person_status != 'L' %}
+            {% include "cemetery/partials/detail_field.html" with label="Died" value=info.dod_display %}
+            {% endif %}
+            {% include "cemetery/partials/detail_field.html" with label="Status" value=info.deceased_status.deceased_status_constant|status_code %}
+            {% include "cemetery/partials/detail_field.html" with label="Gender" value=info.gender|gender_code %}
+            {% include "cemetery/partials/detail_field.html" with label="Year Buried" value=info.date_buried|date:'Y' %}
+        </dl>
+    </section>
+
+    <div class="grid gap-6 mt-6 lg:grid-cols-3">
+
+        <!-- Resting place -->
+        <section class="lg:col-span-2 bg-white border border-gray-200 shadow-sm flex flex-col">
+            <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100 flex items-center justify-between gap-3">
+                <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Resting Place</h2>
+                <a href="{% url 'plot' %}?plot={{ plot.pk }}" class="text-sm font-medium text-sky-800 hover:text-sky-950 hover:underline whitespace-nowrap">
+                    View on plot map &rarr;
+                </a>
+            </div>
+            <div class="p-5 sm:p-6 flex-1">
+                <p class="text-lg font-semibold text-gray-900">
+                    {{ plot.section.section_constant }}{% if plot.is_columbarium_niche %}{% if plot.unit %} &middot; Unit {{ plot.unit }}{% endif %}{% if plot.side %} &middot; Side {{ plot.side }}{% endif %}{% if plot.niche %} &middot; Niche {{ plot.niche }}{% endif %}{% else %}{% if plot.row %} &middot; Row {{ plot.row }}{% endif %} &middot; Plot {{ plot.plot_id }}{% endif %}
+                </p>
+                <dl class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Plot Status</dt>
+                        <dd class="mt-1.5">
+                            <span class="inline-flex items-center gap-1.5 text-sm font-semibold px-2.5 py-0.5 border
+                                {% if plot.plot_status == 'Occupied' %}bg-amber-50 text-amber-800 border-amber-200
+                                {% elif plot.plot_status == 'Reserved' %}bg-indigo-50 text-indigo-800 border-indigo-200
+                                {% elif plot.plot_status == 'Available' %}bg-emerald-50 text-emerald-800 border-emerald-200
+                                {% else %}bg-slate-50 text-slate-700 border-slate-200{% endif %}">
+                                {{ plot.plot_status|default:'Unknown' }}
+                            </span>
+                        </dd>
+                    </div>
+                    {% if not plot.is_columbarium_niche %}
+                    {% include "cemetery/partials/detail_field.html" with label="Zone" value=info.zone_id|stringformat:"d" %}
+                    {% endif %}
+                    {% include "cemetery/partials/detail_field.html" with label="Maintenance" value=plot.maintenance_status.maintenance_status_constant|title %}
+                    {% if plot.note %}
+                    <div class="col-span-full">
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Plot Note</dt>
+                        <dd class="mt-1 text-base text-gray-700 whitespace-pre-wrap">{{ plot.note.note }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section class="bg-white border border-gray-200 shadow-sm flex flex-col">
+            <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100">
+                <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Contact</h2>
+            </div>
+            <div class="p-5 sm:p-6 flex-1">
+                {% with contact=primary_contact.contact_details %}
+                {% if contact %}
+                <p class="text-lg font-semibold text-gray-900 break-words">
+                    {{ contact.first_name }} {% if contact.middle_name %}{{ contact.middle_name }} {% endif %}{{ contact.last_name|default:'' }}
+                </p>
+                <p class="mt-0.5 text-sm text-gray-500">
+                    {{ primary_contact.relationship_type|default:'Relationship not recorded' }}{% if primary_contact.is_primary_contact %} &middot; Primary contact{% endif %}
+                </p>
+                <dl class="mt-4 space-y-3">
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Phone</dt>
+                        <dd class="mt-1 text-base">{% if contact.phone_number %}<a href="tel:{{ contact.phone_number }}" class="font-medium text-sky-800 hover:underline">{{ contact.phone_number }}</a>{% else %}<span class="text-gray-400">Not recorded</span>{% endif %}</dd>
+                    </div>
+                    <div class="min-w-0">
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Email</dt>
+                        <dd class="mt-1 text-base break-words">{% if contact.email %}<a href="mailto:{{ contact.email }}" class="font-medium text-sky-800 hover:underline">{{ contact.email }}</a>{% else %}<span class="text-gray-400">Not recorded</span>{% endif %}</dd>
+                    </div>
+                    {% if contact.note %}
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Note</dt>
+                        <dd class="mt-1 text-base text-gray-700 whitespace-pre-wrap">{{ contact.note.note }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+                {% else %}
+                <p class="text-base text-gray-400">No contact on file.</p>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </section>
+    </div>
+
+    {% include 'cemetery/partials/deceased_note_section.html' with deceased=info %}
+
+    <div class="grid gap-6 mt-6 mb-10 lg:grid-cols-2">
+
+        <!-- Payment -->
+        <section class="bg-white border border-gray-200 shadow-sm flex flex-col">
+            <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100">
+                <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Payment</h2>
+            </div>
+            <div class="p-5 sm:p-6 flex-1">
+                {% if payment %}
+                <dl class="grid grid-cols-2 gap-x-6 gap-y-5">
+                    {% include "cemetery/partials/detail_field.html" with label="Status" value=payment.payment_status.payment_status_constant %}
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Paid</dt>
+                        <dd class="mt-1 text-base font-medium text-gray-900">${{ payment.balance_paid }}</dd>
+                    </div>
+                    {% if payment.date_paid %}
+                    {% include "cemetery/partials/detail_field.html" with label="Date" value=payment.date_paid|date:'F j, Y' %}
+                    {% endif %}
+                    {% if payment.note %}
+                    <div class="col-span-full">
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Payment Note</dt>
+                        <dd class="mt-1 text-base text-gray-700 whitespace-pre-wrap">{{ payment.note.note }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+                {% else %}
+                <p class="text-base text-gray-400">No payment recorded.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Maintenance -->
+        <section class="bg-white border border-gray-200 shadow-sm flex flex-col">
+            <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100">
+                <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Maintenance</h2>
+            </div>
+            <div class="p-5 sm:p-6 flex-1">
+                {% if maintenance_details %}
+                <ul class="divide-y divide-gray-100 -my-3">
+                    {% for maint in maintenance_details %}
+                    <li class="py-3">
+                        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                            <p class="text-base font-medium text-gray-900">
+                                {{ maint.maintenance_type.maintenance_type_constant|default:'Maintenance' }}
+                            </p>
+                            {% if maint.maintenance_date %}
+                            <p class="text-sm text-gray-500">{{ maint.maintenance_date|date:'F j, Y' }}</p>
+                            {% endif %}
+                        </div>
+                        {% if maint.maintenance_type.description %}
+                        <p class="mt-0.5 text-sm text-gray-600">{{ maint.maintenance_type.description }}</p>
+                        {% endif %}
+                        {% if maint.contact_details %}
+                        <p class="mt-0.5 text-sm text-gray-500">By {{ maint.contact_details.first_name }} {{ maint.contact_details.last_name }}</p>
+                        {% endif %}
+                        {% if maint.note %}
+                        <p class="mt-2 text-sm text-gray-700 bg-gray-50 border-l-2 border-sky-300 px-3 py-2 whitespace-pre-wrap">{{ maint.note.note }}</p>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-base text-gray-400">No maintenance recorded.</p>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    {% endwith %}
+    {% else %}
+
+    <div class="flex justify-center mt-10">
+        {% url 'home' as home_url %}
+        {% include "cemetery/partials/empty_state.html" with title="No record found" hint="Oops! Seems the details are missing." action_url=home_url action_label="Back to search" %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% comment %}
+One label/value pair inside a <dl>. Usage:
+{% include "cemetery/partials/detail_field.html" with label="Born" value=info.dob_display %}
+Falsy values show `empty` (default "Not recorded") muted. Pass numbers that can be 0 as strings.
+{% endcomment %}
+<div{% if class %} class="{{ class }}"{% endif %}>
+    <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ label }}</dt>
+    <dd class="mt-1 text-base {% if value %}font-medium text-gray-900{% else %}text-gray-400{% endif %}">{% if value %}{{ value }}{% else %}{{ empty|default:'Not recorded' }}{% endif %}</dd>
+</div>

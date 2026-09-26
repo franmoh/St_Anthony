@@ -1,0 +1,25 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    container_name: cemeterydb
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - cemeterydb_data:/var/lib/mysql
+      - ./cemetery.sql:/docker-entrypoint-initdb.d/01-cemetery.sql:ro
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MARIADB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  cemeterydb_data:

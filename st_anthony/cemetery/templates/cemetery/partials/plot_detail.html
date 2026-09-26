@@ -1,0 +1,114 @@
+<div class="px-5 py-4 bg-blue-50 border-b border-blue-100">
+    <h3 class="text-lg font-bold text-sky-900">Plot {{ plot.plot_id }}</h3>
+    <p class="text-sm text-sky-700">{{ plot.section.section_constant }}</p>
+</div>
+
+<div class="p-5">
+    {% if saved %}
+        {% include "cemetery/partials/alert.html" with variant="success" message="Changes saved successfully." %}
+    {% endif %}
+
+    {% if status_error %}
+        {% include "cemetery/partials/alert.html" with variant="error" message=status_error %}
+    {% endif %}
+
+    {% if plot.plot_status == 'Available' %}
+        {% if plot.niche %}
+        <a href="{% url 'reserve_plot' pk=plot.pk %}"
+            class="block w-full text-center bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors mb-4">
+                Reserve this Niche
+        </a>
+        {% else %}
+
+        <a href="{% url 'reserve_plot' pk=plot.pk %}"
+        class="block w-full text-center bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors mb-4">
+            Reserve this Plot
+        </a>
+        {% endif %}
+    {% endif %}
+
+    {% if latest_history %}
+    <a href="{% url 'reservation_certificate' pk=plot.pk history_pk=latest_history.pk %}"
+       target="_blank" rel="noopener noreferrer"
+       class="block w-full text-center bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors mb-4">
+        Reprint Certificate
+    </a>
+    {% endif %}
+
+    {% include 'cemetery/partials/plot_engraving_region.html' %}
+
+    {% if plot.plot_status == 'Reserved' %}
+    <form hx-post="{% url 'cancel_reservation' pk=plot.pk %}"
+          hx-target="#plot-detail-panel"
+          hx-swap="innerHTML"
+          hx-confirm="Cancel this reservation? This will permanently delete the contact, payment, and any deceased records for this plot, and return it to Available. This cannot be undone."
+          class="mb-4">
+        {% csrf_token %}
+        <button type="submit"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors">
+            Cancel Reservation
+        </button>
+    </form>
+    {% endif %}
+
+    <!-- Plot info (read-only) -->
+    <div class="mb-4 space-y-1 text-base">
+        {% if plot.row %}
+        <p><span class="font-medium text-gray-700">Row:</span> {{ plot.row }}</p>
+        {% endif %}
+        {% if plot.unit %}
+        <p><span class="font-medium text-gray-700">Unit:</span> {{ plot.unit }}</p>
+        {% endif %}
+        {% if plot.side %}
+        <p><span class="font-medium text-gray-700">Side:</span> {{ plot.side }}</p>
+        {% endif %}
+        {% if plot.niche %}
+        <p><span class="font-medium text-gray-700">Niche:</span> {{ plot.niche }}</p>
+        {% endif %}
+    </div>
+
+    <form hx-post="{% url 'manage_plot_detail' pk=plot.pk %}"
+          hx-target="#plot-detail-panel"
+          hx-swap="innerHTML"
+          data-plot-status-form
+          data-dirty-tracked
+          data-current-status="{{ plot.plot_status }}">
+        {% csrf_token %}
+
+        <!-- Status -->
+        {% include 'cemetery/partials/plot_status_control.html' %}
+
+        <!-- Maintenance Status -->
+        <div class="mb-4">
+            <label class="block text-base font-medium text-gray-700 mb-1">Maintenance Status</label>
+            <select name="maintenance_status"
+                    class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none">
+                {% for ms in maintenance_statuses %}
+                <option value="{{ ms.pk }}" {% if plot.maintenance_status_id == ms.pk %}selected{% endif %}>
+                    {{ ms.maintenance_status_constant }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Plot Note -->
+        <div class="mb-4">
+            <label class="block text-base font-medium text-gray-700 mb-1">Note</label>
+            <textarea name="plot_note"
+                    class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-base focus:ring-2 focus:ring-sky-700 focus:outline-none"
+                    rows="3"
+                    placeholder="Enter plot note (optional)">{{ plot.note.note|default:'' }}</textarea>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors mb-4">
+            Save Changes
+        </button>
+    </form>
+
+    {% include 'cemetery/partials/plot_deceased_section.html' %}
+
+    {% include 'cemetery/partials/plot_contact_section.html' %}
+
+    {% include 'cemetery/partials/plot_note_section.html' %}
+</div>
