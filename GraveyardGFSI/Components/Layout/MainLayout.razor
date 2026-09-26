@@ -1,0 +1,88 @@
+﻿@inherits LayoutComponentBase
+
+@inject NavigationManager NavigationManager;
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="container-fluid page-header border-bottom">
+            <div class="container d-flex justify-content-around align-items-center">
+                <div class="d-flex align-items-center gap-2 p-3">
+                    <a href="">
+                        <img src="@logoUrl"
+                             alt="Our Lady of Peace Parish logo"
+                             class="d-block" />
+                    </a>
+                    <a href="">
+                        <h5 class="text-light">OUR LADY <i>of</i> PEACE PARISH</h5>
+                    </a>
+                </div>
+                <div class="container text-end d-block py-4">
+                    <div class="fw-bold text-light">
+                        <h5>Weekend Mass Times</h5>
+                        <span>Saturdays at 4:00pm</span><br />
+                        <a class="text-light fw-normal" href="https://www.ourladyofpeacefredericton.ca/contact-us-1/" target="_blank">St. Anthony's Church
+                        </a>
+                    </div>
+                    <br />
+                    <div class="fw-bold text-light">
+                        <span>Sundays at 9:00 am</span><br />
+                        <span>
+                            <a class="text-light fw-normal" href="https://www.ourladyofpeacefredericton.ca/contact-us-1/" target="_blank">
+                                St. Patrick's Church
+                            </a>
+                        </span>
+                    </div>
+                    <br />
+                    <div class="fw-bold text-light">
+                        <span>Sundays at 11:00 am</span><br />
+                        <span>
+                            <a class="text-light fw-normal" href="https://www.ourladyofpeacefredericton.ca/contact-us-1/" target="_blank">
+                                St. Theresa's Church
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+
+@code {
+
+    private string? logoUrl;
+
+    protected override void OnInitialized()
+    {
+        /*
+        * logoUrl = $"{NavigationManager.BaseUri}images/st_anthony_logo_m.png";
+        NavigationManager.LocationChanged += OnLocationChanged;
+        */
+        logoUrl = $"{NavigationManager.BaseUri}/images/st_anthony_logo_m.png";
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        logoUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

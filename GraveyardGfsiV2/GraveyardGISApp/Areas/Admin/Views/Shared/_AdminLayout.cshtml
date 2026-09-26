@@ -1,0 +1,114 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GraveyardGISApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/GraveyardGISApp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">GraveyardGISApp</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Search">Search</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Reservations" asp-action="Index">Reservations</a>
+                        </li>
+                        @if (SignInManager.IsSignedIn(User) &&
+                            (await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "Admin") ||
+                            await UserManager.IsInRoleAsync(await UserManager.GetUserAsync(User), "Employee")))
+                        {
+                            // Displays UI Element for Admins and Employees. Needs to be properly routed though.
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin</a>
+                            </li>
+                        }
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+        <div class="page-header border-bottom w-100">
+            <div class="container d-flex justify-content-around align-items-center">
+                <div class="d-flex align-items-center gap-2 p-3">
+                    <a href="">
+                        <img src="~/images/st_anthony_logo_m.png"
+                             alt="Our Lady of Peace Parish logo"
+                             asp-append-version="true"
+                             class="d-block" />
+                    </a>
+                    <a href="">
+                        <h5 class="text-light">OUR LADY <i>of</i> PEACE PARISH</h5>
+                    </a>
+                </div>
+                <div class="container text-end d-block py-4">
+                    <div class="fw-bold text-light">
+                        <h5>Weekend Mass Times</h5>
+                        <span>Saturdays at 4:00pm</span><br />
+                        <a class="text-light fw-normal" href="https://www.ourladyofpeacefredericton.ca/contact-us-1/" target="_blank">
+                            St. Anthony's Church
+                        </a>
+                    </div>
+                    <br />
+                    <div class="fw-bold text-light">
+                        <span>Sundays at 9:00 am</span><br />
+                        <span>
+                            <a class="text-light fw-normal" href="https://www.ourladyofpeacefredericton.ca/contact-us-1/" target="_blank">
+                                St. Patrick's Church
+                            </a>
+                        </span>
+                    </div>
+                    <br />
+                    <div class="fw-bold text-light">
+                        <span>Sundays at 11:00 am</span><br />
+                        <span>
+                            <a class="text-light fw-normal" href="https://www.ourladyofpeacefredericton.ca/contact-us-1/" target="_blank">
+                                St. Theresa's Church
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+            @RenderBody()
+    </div>
+
+    <footer class="border-top text-muted bg-secondary bg-opacity-10 mt-auto">
+        <div class="container-fluid text-center py-3">
+            <p class="mb-2 text-dark">For St. Anthony's Church By Civic Tech Fredericton</p>
+            <img src="~/images/CivicTechLogo.png"
+                 alt="Civic Tech Fredericton logo"
+                 asp-append-version="true"
+                 class="footer-logo" />
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Keep secrets, local environments and build output out of the image.
+.env
+.venv/
+staticfiles/
+**/__pycache__/
+**/*.pyc
+theme/static_src/node_modules/
+*.sql
+.git/

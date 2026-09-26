@@ -1,0 +1,174 @@
+@using GraveyardGISApp.Models
+@model ReservationFormViewModel
+
+@{
+    ViewData["Title"] = "Reserve a Plot";
+}
+
+<div class="mb-3">
+    <a href="/Reserve" class="btn btn-outline-secondary btn-sm">&larr; Back to Available Plots</a>
+</div>
+
+<h2>Reserve a Plot</h2>
+
+<div class="row mt-4">
+    <div class="col-md-5 mb-4">
+        <h5>Plot Details</h5>
+        <table class="table table-bordered">
+            <tr><th>Section</th><td>@(Model.SectionName ?? "—")</td></tr>
+            <tr><th>Row</th><td>@(Model.Row ?? "—")</td></tr>
+            <tr><th>Unit</th><td>@(Model.Unit ?? "—")</td></tr>
+            <tr><th>Side</th><td>@(Model.Side ?? "—")</td></tr>
+            <tr><th>Niche</th><td>@(Model.Niche ?? "—")</td></tr>
+        </table>
+    </div>
+</div>
+
+<form method="post" action="/Reserve/@Model.PlotDetailsId">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="ExistingContactId" id="ExistingContactId" value="" />
+
+    <h5>Contact Information</h5>
+
+    <!-- Contact search -->
+    <div class="mb-3">
+        <label class="form-label text-muted" style="font-size:0.875rem;">Search for an existing contact</label>
+        <div class="d-flex gap-2">
+            <input type="text" id="contactSearch" class="form-control" placeholder="Search by name, email or phone..." />
+            <button type="button" id="searchBtn" class="btn btn-outline-secondary">Search</button>
+        </div>
+        <div id="searchResults" class="border rounded p-2 mt-2" style="display:none;"></div>
+    </div>
+
+    <!-- Selected contact display (hidden until a contact is selected) -->
+    <div id="selectedContact" class="alert alert-success d-flex justify-content-between align-items-center mb-3" style="display:none !important;">
+        <div>
+            <strong id="selectedContactName"></strong><br />
+            <small class="text-muted" id="selectedContactInfo"></small>
+        </div>
+        <button type="button" id="clearContact" class="btn btn-sm btn-outline-secondary">Use different contact</button>
+    </div>
+
+    <!-- New contact fields (hidden when existing contact selected) -->
+    <div id="newContactForm">
+        <p class="text-muted mb-2" style="font-size:0.875rem;">Or fill in the details below to create a new contact.</p>
+        <div class="row g-3 mb-4">
+            <div class="col-sm-4">
+                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                <input type="text" name="FirstName" value="@Model.FirstName" class="form-control" />
+                <span class="text-danger" style="font-size:0.85rem;">@Html.ValidationMessage("FirstName")</span>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label">Middle Name</label>
+                <input type="text" name="MiddleName" value="@Model.MiddleName" class="form-control" />
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                <input type="text" name="LastName" value="@Model.LastName" class="form-control" />
+                <span class="text-danger" style="font-size:0.85rem;">@Html.ValidationMessage("LastName")</span>
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="PhoneNumber" value="@Model.PhoneNumber" class="form-control" />
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label">Email</label>
+                <input type="email" name="Email" value="@Model.Email" class="form-control" />
+            </div>
+            <div class="col-12">
+                <label class="form-label">Address</label>
+                <input type="text" name="Address" value="@Model.Address" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <h5>Payment</h5>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <label class="form-label">Balance Due <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" name="BalanceDue" value="@Model.BalanceDue" class="form-control" min="0.01" step="0.01" />
+            </div>
+            <span class="text-danger" style="font-size:0.85rem;">@Html.ValidationMessage("BalanceDue")</span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Confirm Reservation</button>
+</form>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+
+        $('#searchBtn').on('click', function () {
+            var q = $('#contactSearch').val().trim();
+            if (q.length < 2) return;
+
+            $.getJSON('/Reservations/SearchContacts', { q: q }, function (results) {
+                var $results = $('#searchResults').empty().show();
+
+                if (results.length === 0) {
+                    $('<p class="text-muted mb-0"></p>')
+                        .text('No existing contacts found. Fill in the form below to create a new one.')
+                        .css('font-size', '0.875rem')
+                        .appendTo($results);
+                    return;
+                }
+
+                results.forEach(function (c) {
+                    var nameParts = [c.firstName, c.middleName, c.lastName].filter(Boolean);
+                    var name = nameParts.join(' ');
+                    var infoParts = [c.phoneNumber, c.email].filter(Boolean);
+                    var info = infoParts.join(' | ');
+
+                    var $row = $('<div class="d-flex justify-content-between align-items-center py-2 border-bottom"></div>');
+
+                    var $details = $('<div></div>');
+                    $('<strong></strong>').text(name).appendTo($details);
+                    if (info) {
+                        $('<br>').appendTo($details);
+                        $('<small class="text-muted"></small>').text(info).appendTo($details);
+                    }
+
+                    var $btn = $('<button type="button" class="btn btn-sm btn-outline-primary ms-2">Select</button>');
+                    $btn.data('id', c.contactDetailsId);
+                    $btn.data('name', name);
+                    $btn.data('info', info);
+
+                    $row.append($details).append($btn);
+                    $results.append($row);
+                });
+            });
+        });
+
+        // Allow pressing Enter in the search box
+        $('#contactSearch').on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                $('#searchBtn').click();
+            }
+        });
+
+        // Select an existing contact
+        $(document).on('click', '.btn-outline-primary.ms-2', function () {
+            var $btn = $(this);
+            $('#ExistingContactId').val($btn.data('id'));
+            $('#selectedContactName').text($btn.data('name'));
+            $('#selectedContactInfo').text($btn.data('info') || '');
+            $('#selectedContact').show();
+            $('#newContactForm').hide();
+            $('#searchResults').hide();
+            $('#contactSearch').val('');
+        });
+
+        // Clear selected contact
+        $('#clearContact').on('click', function () {
+            $('#ExistingContactId').val('');
+            $('#selectedContact').hide();
+            $('#newContactForm').show();
+        });
+
+    });
+</script>
+}

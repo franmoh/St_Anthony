@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}   
+
+<div class="row align-items-center justify-content-center py-5 g-5">
+    <div class="col-lg-5 col-md-6">
+        <h1 class="display-4 fw-bold">Digital Graveyard Locator</h1>
+        <p class="lead text-muted mt-3">Locate specific burial plots and view deceased information in St. Anthony's Cemetery.</p>
+        <div class="d-flex gap-3 mt-4">
+            <a asp-area="" asp-controller="Home" asp-action="Search" class="btn btn-primary btn-lg">Search Burials</a>
+            <a asp-area="" asp-controller="Home" asp-action="Reserve" class="btn btn-outline-primary btn-lg">Reserve a Plot</a>
+        </div>
+    </div>
+    <div class="col-lg-5 col-md-6 text-center d-none d-md-block">
+        <img src="~/images/cemetery_stone.png" alt="Cemetery stone" asp-append-version="true" class="img-fluid rounded shadow" style="max-height: 400px;" />
+    </div>
+</div>

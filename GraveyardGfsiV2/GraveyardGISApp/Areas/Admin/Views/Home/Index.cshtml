@@ -1,0 +1,78 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container-fluid d-flex justify-content-center pt-3">
+    <h1>Admin Dashboard</h1>
+</div>
+<hr />
+<div class="row g-3"> <!-- First Row -->
+
+    <div class="col-6">
+
+        <div class="accordion" id="accordionUsers">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                            aria-expanded="false" aria-controls="collapseOne">
+                        Users
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="collapseOne"
+                     aria-labelledby="headingOne" data-bs-parent="#accordionUsers">
+                    <div class="accordion-body">
+                        <ul><!-- Honestly I'd much prefer if these vvv weren't so hideous. Buttons?-->
+                            <li class="list-unstyled">
+                                <a asp-area="Admin" asp-controller="Users" asp-action="Create">
+                                    Details
+                                </a>
+                                <hr />
+                                <a asp-area="Admin" asp-controller="Users" asp-action="Create">
+                                    Create
+                                </a>
+                                <hr />
+                                <a asp-area="Admin" asp-controller="Users" asp-action="Create">
+                                    Edit
+                                </a>
+                                <hr />
+                                <a asp-area="Admin" asp-controller="Users" asp-action="Create">
+                                    Delete
+                                </a>
+                                <hr />
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+                        aria-expanded="false" aria-controls="collapseTwo">
+                    Reservations
+                </button>
+            </h2>
+            <div class="accordion-collapse collapse" id="collapseTwo"
+                 aria-labelledby="headingTwo" data-bs-parent="#accordionUsers">
+                <div class="accordion-body">
+                    <ul>
+                        <li class="list-unstyled">
+                            <a asp-area="Admin" asp-controller="Reservations" asp-action="Index">
+                                View All Reservations
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-6">
+            
+    </div>
+
+</div>

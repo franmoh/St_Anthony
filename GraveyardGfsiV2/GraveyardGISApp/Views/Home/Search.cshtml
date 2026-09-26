@@ -1,0 +1,93 @@
+@using GraveyardGISApp.Models
+@model List<SearchResultViewModel>
+
+@{
+    ViewData["Title"] = "Search";
+    var query = ViewData["Query"] as string;
+
+    string FormatPartialDate(int? year, int? month, int? day)
+    {
+        if (year == null) return "—";
+        if (month == null) return year.ToString()!;
+        if (day == null) return $"{year}-{month:D2}";
+        return $"{year}-{month:D2}-{day:D2}";
+    }
+}
+
+<h1>Search</h1>
+
+<form method="get" action="/Search" class="d-flex gap-2 my-3">
+    <input type="text" name="q" value="@query" class="form-control" placeholder="Search by name..." />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (query != null)
+{
+    if (Model.Count == 0)
+    {
+        <p>No results found for "@query".</p>
+    }
+    else
+    {
+        <!-- Mobile: card list (hidden on md+) -->
+        <div class="d-md-none">
+            @foreach (var person in Model)
+            {
+                var fullName = string.Join(" ", new[] { person.FirstName, person.MiddleName, person.LastName }
+                    .Where(s => !string.IsNullOrWhiteSpace(s)));
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title mb-1">@fullName</h6>
+                        <p class="card-text text-muted mb-1" style="font-size: 0.875rem;">
+                            <span class="me-3">DOB: @FormatPartialDate(person.DOBYear, person.DOBMonth, person.DOBDay)</span>
+                            <span>DOD: @FormatPartialDate(person.DODYear, person.DODMonth, person.DODDay)</span>
+                        </p>
+                        <p class="card-text text-muted mb-2" style="font-size: 0.875rem;">
+                            Section: @(person.SectionName ?? "—") &nbsp;|&nbsp; Row: @(person.Row ?? "—")
+                        </p>
+                        <a href="/Deceased/@person.DeceasedDetailsId" class="btn btn-sm btn-outline-primary">View</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Desktop: full table (hidden below md) -->
+        <div class="d-none d-md-block">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Date of Birth</th>
+                        <th>Date of Death</th>
+                        <th>Date Buried</th>
+                        <th>Section</th>
+                        <th>Row</th>
+                        <th>Plot ID</th>
+                        <th>Zone ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var person in Model)
+                    {
+                        var fullName = string.Join(" ", new[] { person.FirstName, person.MiddleName, person.LastName }
+                            .Where(s => !string.IsNullOrWhiteSpace(s)));
+                        <tr>
+                            <td><a href="/Deceased/@person.DeceasedDetailsId" class="btn btn-sm btn-outline-primary">View</a></td>
+                            <td>@fullName</td>
+                            <td>@(person.Gender ?? "—")</td>
+                            <td>@FormatPartialDate(person.DOBYear, person.DOBMonth, person.DOBDay)</td>
+                            <td>@FormatPartialDate(person.DODYear, person.DODMonth, person.DODDay)</td>
+                            <td>@(person.DateBuried?.ToShortDateString() ?? "—")</td>
+                            <td>@(person.SectionName ?? "—")</td>
+                            <td>@(person.Row ?? "—")</td>
+                            <td>@person.PlotId</td>
+                            <td>@person.ZoneId</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}

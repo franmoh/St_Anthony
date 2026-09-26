@@ -1,0 +1,126 @@
+@using GraveyardGISApp.Models
+@model DeceasedDetailViewModel
+
+@{
+    ViewData["Title"] = "Deceased Details";
+    var fullName = string.Join(" ", new[] { Model.FirstName, Model.MiddleName, Model.LastName }
+        .Where(s => !string.IsNullOrWhiteSpace(s)));
+
+    string FormatPartialDate(int? year, int? month, int? day)
+    {
+        if (year == null) return "—";
+        if (month == null) return year.ToString()!;
+        if (day == null) return $"{year}-{month:D2}";
+        return $"{year}-{month:D2}-{day:D2}";
+    }
+}
+
+<div class="mb-3">
+    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">&larr; Back</a>
+</div>
+
+<h2>@fullName</h2>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-3">
+        <h5>Personal Information</h5>
+        <table class="table table-bordered">
+            <tr><th>Gender</th><td>@(Model.Gender ?? "—")</td></tr>
+            <tr><th>Date of Birth</th><td>@FormatPartialDate(Model.DOBYear, Model.DOBMonth, Model.DOBDay)</td></tr>
+            <tr><th>Date of Death</th><td>@FormatPartialDate(Model.DODYear, Model.DODMonth, Model.DODDay)</td></tr>
+            <tr><th>Date Buried</th><td>@(Model.DateBuried?.ToShortDateString() ?? "—")</td></tr>
+        </table>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <h5>Plot / Location</h5>
+        <table class="table table-bordered">
+            <tr><th>Section</th><td>@(Model.SectionName ?? "—")</td></tr>
+            <tr><th>Row</th><td>@(Model.Row ?? "—")</td></tr>
+            <tr><th>Unit</th><td>@(Model.Unit ?? "—")</td></tr>
+            <tr><th>Side</th><td>@(Model.Side ?? "—")</td></tr>
+            <tr><th>Niche</th><td>@(Model.Niche ?? "—")</td></tr>
+            <tr><th>Plot ID</th><td>@Model.PlotId</td></tr>
+            <tr><th>Zone ID</th><td>@Model.ZoneId</td></tr>
+        </table>
+    </div>
+</div>
+
+@{
+    void RenderContacts(List<GraveyardGISApp.Models.ContactViewModel> contacts, bool showRelationship)
+    {
+        var sorted = contacts.OrderByDescending(c => c.IsPrimaryContact).ToList();
+
+        <!-- Mobile: cards -->
+        <div class="d-md-none">
+            @foreach (var contact in sorted)
+            {
+                var contactName = string.Join(" ", new[] { contact.FirstName, contact.MiddleName, contact.LastName }
+                    .Where(s => !string.IsNullOrWhiteSpace(s)));
+                <div class="card mb-2">
+                    <div class="card-body py-2">
+                        <h6 class="card-title mb-1">@contactName</h6>
+                        @if (showRelationship)
+                        {
+                            <p class="card-text text-muted mb-1" style="font-size:0.875rem;">Relationship: @(contact.RelationshipType ?? "—")</p>
+                        }
+                        <p class="card-text text-muted mb-1" style="font-size:0.875rem;">Phone: @(contact.PhoneNumber ?? "—")</p>
+                        <p class="card-text text-muted mb-1" style="font-size:0.875rem;">Email: @(contact.Email ?? "—")</p>
+                        <p class="card-text text-muted mb-0" style="font-size:0.875rem;">Address: @(contact.Address ?? "—")</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Desktop: table -->
+        <div class="d-none d-md-block">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        @if (showRelationship) { <th>Relationship</th> }
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Primary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contact in sorted)
+                    {
+                        var contactName = string.Join(" ", new[] { contact.FirstName, contact.MiddleName, contact.LastName }
+                            .Where(s => !string.IsNullOrWhiteSpace(s)));
+                        <tr>
+                            <td>@contactName</td>
+                            @if (showRelationship) { <td>@(contact.RelationshipType ?? "—")</td> }
+                            <td>@(contact.PhoneNumber ?? "—")</td>
+                            <td>@(contact.Email ?? "—")</td>
+                            <td>@(contact.Address ?? "—")</td>
+                            <td>@(contact.IsPrimaryContact ? "Yes" : "No")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+<h5 class="mt-3">Deceased Contacts</h5>
+@if (Model.DeceasedContacts.Any())
+{
+    RenderContacts(Model.DeceasedContacts, showRelationship: true);
+}
+else
+{
+    <p class="text-muted">No deceased contacts on record.</p>
+}
+
+<h5 class="mt-3">Plot Contacts</h5>
+@if (Model.PlotContacts.Any())
+{
+    RenderContacts(Model.PlotContacts, showRelationship: false);
+}
+else
+{
+    <p class="text-muted">No plot contacts on record.</p>
+}

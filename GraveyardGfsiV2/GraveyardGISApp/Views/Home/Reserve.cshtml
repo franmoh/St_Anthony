@@ -1,0 +1,66 @@
+@using GraveyardGISApp.Models
+@model List<PlotListViewModel>
+
+@{
+    ViewData["Title"] = "Reserve a Plot";
+}
+
+<h1>Reserve a Plot</h1>
+<p class="text-muted">The following plots are currently available.</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No available plots at this time.</p>
+}
+else
+{
+    <!-- Mobile: cards -->
+    <div class="d-md-none">
+        @foreach (var plot in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title mb-1">Section: @(plot.SectionName ?? "—")</h6>
+                    <p class="card-text text-muted mb-2" style="font-size:0.875rem;">
+                        <span class="me-3">Row: @(plot.Row ?? "—")</span>
+                        <span class="me-3">Unit: @(plot.Unit ?? "—")</span>
+                        <span class="me-3">Side: @(plot.Side ?? "—")</span>
+                        <span>Niche: @(plot.Niche ?? "—")</span>
+                    </p>
+                    <a href="/Reserve/@plot.PlotDetailsId" class="btn btn-primary btn-sm">Reserve</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Desktop: table -->
+    <div class="d-none d-md-block">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Section</th>
+                    <th>Row</th>
+                    <th>Unit</th>
+                    <th>Side</th>
+                    <th>Niche</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var plot in Model)
+                {
+                    <tr>
+                        <td>@(plot.SectionName ?? "—")</td>
+                        <td>@(plot.Row ?? "—")</td>
+                        <td>@(plot.Unit ?? "—")</td>
+                        <td>@(plot.Side ?? "—")</td>
+                        <td>@(plot.Niche ?? "—")</td>
+                        <td>
+                            <a href="/Reserve/@plot.PlotDetailsId" class="btn btn-primary btn-sm">Reserve</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

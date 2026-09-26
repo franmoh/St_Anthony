@@ -1,0 +1,43 @@
+:root {
+    --bg-header-color-primary: #2b6ca3;
+    --bg-header-color-secondary: #002e5d;
+}
+
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+
+.navbar .nav-link:hover {
+    color: var(--bg-header-color-primary) !important;
+}
+
+.page-header {
+    background-color: var(--bg-header-color-primary) !important;
+    color: white !important;
+    border-bottom: solid .75em var(--bg-header-color-secondary) !important;
+    font-size: 14px;
+}
+
+.footer-logo {
+    max-height: 60px;
+}
+
+.top-row {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}

@@ -1,0 +1,79 @@
+@using GraveyardGISApp.Models
+@model List<ReservationListViewModel>
+
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<h2>Reservations</h2>
+<p class="text-muted">All currently reserved plots.</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No reservations found.</p>
+}
+else
+{
+    <!-- Mobile: cards -->
+    <div class="d-md-none">
+        @foreach (var r in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title mb-1">@(r.ContactName ?? "—")</h6>
+                    <p class="card-text text-muted mb-1" style="font-size:0.875rem;">
+                        Section: @(r.SectionName ?? "—") &nbsp;|&nbsp; Row: @(r.Row ?? "—")
+                    </p>
+                    <p class="card-text text-muted mb-1" style="font-size:0.875rem;">
+                        Phone: @(r.PhoneNumber ?? "—")
+                    </p>
+                    <p class="card-text text-muted mb-2" style="font-size:0.875rem;">
+                        Payment: <strong>@(r.PaymentStatus ?? "—")</strong>
+                        &nbsp;|&nbsp; Due: @(r.BalanceDue.HasValue ? $"${r.BalanceDue:F2}" : "—")
+                        &nbsp;|&nbsp; Paid: @(r.BalancePaid.HasValue ? $"${r.BalancePaid:F2}" : "—")
+                    </p>
+                    <a asp-area="Admin" asp-controller="Reservations" asp-action="Details"
+                       asp-route-id="@r.PlotDetailsId" class="btn btn-sm btn-outline-primary">Manage</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Desktop: table -->
+    <div class="d-none d-md-block">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Contact</th>
+                    <th>Phone</th>
+                    <th>Section</th>
+                    <th>Row</th>
+                    <th>Payment Status</th>
+                    <th>Balance Due</th>
+                    <th>Balance Paid</th>
+                    <th>Reserved On</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@(r.ContactName ?? "—")</td>
+                        <td>@(r.PhoneNumber ?? "—")</td>
+                        <td>@(r.SectionName ?? "—")</td>
+                        <td>@(r.Row ?? "—")</td>
+                        <td>@(r.PaymentStatus ?? "—")</td>
+                        <td>@(r.BalanceDue.HasValue ? $"${r.BalanceDue:F2}" : "—")</td>
+                        <td>@(r.BalancePaid.HasValue ? $"${r.BalancePaid:F2}" : "—")</td>
+                        <td>@(r.ReservedDate?.ToShortDateString() ?? "—")</td>
+                        <td>
+                            <a asp-area="Admin" asp-controller="Reservations" asp-action="Details"
+                               asp-route-id="@r.PlotDetailsId" class="btn btn-sm btn-outline-primary">Manage</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

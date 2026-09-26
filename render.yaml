@@ -1,0 +1,29 @@
+# Render Blueprint for the St. Anthony cemetery Django app.
+# The database is an Aiven for MySQL free service; its connection details are
+# entered in the Render dashboard when the Blueprint is created (sync: false),
+# so no secrets live in this file. See GraveyardGfsiDjango/database/DEPLOY.md.
+services:
+  - type: web
+    name: st-anthony-cemetery
+    runtime: docker
+    plan: free
+    rootDir: GraveyardGfsiDjango/st_anthony
+    dockerfilePath: GraveyardGfsiDjango/st_anthony/Dockerfile
+    dockerContext: GraveyardGfsiDjango/st_anthony
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        value: defaultdb
+      - key: DB_USER
+        value: avnadmin
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSL_CA_PEM
+        sync: false

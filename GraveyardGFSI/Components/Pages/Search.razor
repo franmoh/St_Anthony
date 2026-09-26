@@ -1,0 +1,144 @@
+﻿@page "/Search"
+
+
+<PageTitle>Search for a person</PageTitle>
+<h3>Burial Search</h3>
+
+<!-- Once we get more of the structure set, we can have finer control over sort settings. Keeping the scope small for now, and add checks to sort by specific province/graveyard/plot/etc later. -->
+<div class="card border container-fluid">
+    <form class="mb-3" onsubmit="return false;">
+        <div class="row">
+            <div class="col m-3">
+                <select name="section" id="section" placeholder="Section">
+                    <!-- A lot of elements (like name/id) aren't in yet, will do once I 
+                        have something tangible to validate -->
+                    <option>Section</option>
+                    <option>Upper</option>
+                    <option>Middle</option>
+                    <option>Lower</option>
+                    <option>Western</option>
+                    <!-- <option>Columbarium</option> -->
+                    <option>Paul Family Plots</option>
+                </select>
+            </div>
+            <div class="col m-3">
+                <select name="status" id="status" placeholder="Status">
+                    <option>Status</option>
+                    <option>Living</option>
+                    <option>Deceased</option>
+                    <option>Ashes</option>
+                    <option>Unknown</option>
+                    <option>Infant</option>
+                </select>
+            </div>
+            <div class="col m-3">
+                <select name="columbarium" id="columbarium" placeholder="Columbarium">
+                    <option>Columbarium</option>
+                    <option>Side A</option>
+                    <option>Side B</option>
+                </select>
+            </div>
+            <div class="col m-3">
+                <select name="unit" id="unit" placeholder="unit">
+                    <option>Unit</option>
+                    <option>1</option>
+                    <option>2</option>
+                </select>
+            </div>
+            <div class="col m-3">
+                <select name="niche" id="niche" placeholder="niche">
+                    <option>Niche</option>
+                    @foreach (var niche in nicheList)
+                    {
+                        <option>@niche</option>
+                    }
+                </select>
+            </div>
+            
+            
+            <div class="mb-3">
+                <label for="searchInput" class="form-label"></label>
+                <div class="input-group-text">
+                <input type="text"
+                        @bind="SearchText"
+                        @bind:event="oninput"
+                        placeholder="Search By Name"
+                        class="form-control m-1" />
+                </div>
+            </div>
+        </div>
+        <hr />
+    </form>
+    <ul class="person-list">
+        @foreach (var item in filteredResults)
+        {
+            <li class="person-list-item">@item</li><hr>
+        }
+    </ul>
+</div>
+
+@code {
+    private string searchText = string.Empty;
+    private List<string> filteredResults = new();
+    private List<string> nicheList = new();
+
+    private List<string> p = new()
+    {
+        "Mary Bennett", "Marie Arseneau", "Leo Arseneau", "Joseph Arseneau", "Sarah Dick",
+        "Dick Clarke", "Beatrice Dion", "Lorenzo Dion", "Lillian Doucette", "Aurelle Doucette"
+    };
+
+    private IEnumerable<string> FilteredSearchItems =>
+        string.IsNullOrWhiteSpace(searchText)
+            ? p
+            : p.Where(i => i.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override void OnInitialized()
+    {
+        // Show all results off the bat. For show, likely would want to have to make settings
+        // or filters chosen before populating if it's resource intensive.
+        filteredResults = p;
+        nicheList = DisplayNiche();
+    }
+
+    private void DoSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredResults = p;
+        }
+        else
+        {
+            filteredResults = p
+                .Where(i => i.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private List<string> DisplayNiche()
+    {
+        // Filler, just didnt want to hardcode values from 1-24.
+        nicheList.Clear();
+        for (int i = 1; i <= 24; i++)
+        {
+            nicheList.Add(i.ToString());
+        }
+        return nicheList;
+    }
+
+    private string SearchText
+    {
+        // Quick and dirty, but it works for the concept. Change it to FindAll(Object)
+        // once we have some actual non-hardcoded values. May need to change it so it isn't querying the DB every keystroke?
+        get => searchText;
+        set {
+            if (searchText != value)
+            {
+                searchText = value;
+                filteredResults = string.IsNullOrWhiteSpace(searchText)
+                    ? p
+                    : p.Where(i => i.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+        }
+    }
+}

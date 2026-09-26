@@ -1,0 +1,102 @@
+@using GraveyardGISApp.Models
+@model ReservationDetailViewModel
+
+@{
+    ViewData["Title"] = "Reservation Details";
+    var fullName = string.Join(" ", new[] { Model.FirstName, Model.MiddleName, Model.LastName }
+        .Where(s => !string.IsNullOrWhiteSpace(s)));
+}
+
+<div class="mb-3">
+    <a asp-area="Admin" asp-controller="Reservations" asp-action="Index"
+       class="btn btn-outline-secondary btn-sm">&larr; Back to Reservations</a>
+</div>
+
+<h2>Reservation: @fullName</h2>
+<p class="text-muted">Reserved on: @(Model.ReservedDate?.ToShortDateString() ?? "—")</p>
+
+<div class="row mt-3">
+    <div class="col-md-6 mb-3">
+        <h5>Plot / Location</h5>
+        <table class="table table-bordered">
+            <tr><th>Section</th><td>@(Model.SectionName ?? "—")</td></tr>
+            <tr><th>Row</th><td>@(Model.Row ?? "—")</td></tr>
+            <tr><th>Unit</th><td>@(Model.Unit ?? "—")</td></tr>
+            <tr><th>Side</th><td>@(Model.Side ?? "—")</td></tr>
+            <tr><th>Niche</th><td>@(Model.Niche ?? "—")</td></tr>
+            <tr><th>Plot ID</th><td>@Model.PlotDetailsId</td></tr>
+        </table>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <h5>Contact Information</h5>
+        <table class="table table-bordered">
+            <tr><th>Name</th><td>@(fullName.Length > 0 ? fullName : "—")</td></tr>
+            <tr><th>Phone</th><td>@(Model.PhoneNumber ?? "—")</td></tr>
+            <tr><th>Email</th><td>@(Model.Email ?? "—")</td></tr>
+            <tr><th>Address</th><td>@(Model.Address ?? "—")</td></tr>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <h5>Payment</h5>
+        <table class="table table-bordered mb-3">
+            <tr><th>Status</th><td>@(Model.PaymentStatusName ?? "—")</td></tr>
+            <tr><th>Balance Due</th><td>@(Model.BalanceDue.HasValue ? $"${Model.BalanceDue:F2}" : "—")</td></tr>
+            <tr><th>Balance Paid</th><td>@(Model.BalancePaid.HasValue ? $"${Model.BalancePaid:F2}" : "—")</td></tr>
+        </table>
+
+        @if (Model.PaymentDetailsId.HasValue)
+        {
+            <form asp-area="Admin" asp-controller="Reservations" asp-action="UpdatePayment"
+                  asp-route-id="@Model.PlotDetailsId" method="post" class="d-flex gap-2 align-items-center">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="paymentDetailsId" value="@Model.PaymentDetailsId" />
+                <select name="paymentStatusId" class="form-select form-select-sm" style="width:auto;">
+                    @foreach (var status in Model.AvailablePaymentStatuses)
+                    {
+                        <option value="@status.Value" selected="@(status.Selected ? "selected" : null)">@status.Text</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary">Update Status</button>
+            </form>
+        }
+    </div>
+</div>
+
+<hr />
+
+<h5 class="text-danger">Cancel Reservation</h5>
+<p class="text-muted" style="font-size:0.875rem;">
+    This will release the plot back to available. The contact and payment records will be kept for audit purposes.
+</p>
+
+<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal">
+    Cancel Reservation
+</button>
+
+<!-- Cancel confirmation modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to cancel the reservation for <strong>@fullName</strong>?
+                The plot will be released back to available.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go Back</button>
+                <form asp-area="Admin" asp-controller="Reservations" asp-action="Cancel"
+                      asp-route-id="@Model.PlotDetailsId" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Yes, Cancel Reservation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
