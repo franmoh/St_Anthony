@@ -1,3 +1,4 @@
+{% load spam_guard_tags %}
 <div id="contact-form-wrapper">
     {% if sent %}
         {% include "cemetery/partials/alert.html" with variant="success" message="Thanks for reaching out! Your message has been sent to the parish office." square=True %}
@@ -7,6 +8,7 @@
         {% endif %}
         <form hx-post="{% url 'contact_submit' %}" hx-target="#contact-form-wrapper" hx-swap="outerHTML" class="space-y-4">
             {% csrf_token %}
+            {% spam_guard %}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-800 mb-1.5" for="cf-first-name">First Name</label>

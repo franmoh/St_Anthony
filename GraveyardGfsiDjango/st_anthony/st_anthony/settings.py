@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'cemetery',
     'tailwind',
     'theme',
+    'axes',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -69,6 +71,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Must stay last: turns a locked-out login into the lockout page.
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'st_anthony.urls'
@@ -157,7 +161,24 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'cemetery.Users'
 
-AUTHENTICATION_BACKENDS = ['cemetery.backends.UsersAuthBackend']
+AUTHENTICATION_BACKENDS = [
+    # Must come first so it can refuse locked-out logins before the password is checked.
+    'axes.backends.AxesStandaloneBackend',
+    'cemetery.backends.UsersAuthBackend',
+]
+
+# Login lockout (django-axes), for both /login/ and /admin/login/.
+# Counted per username: behind Render's proxy the client IP comes from a
+# spoofable header, so a per-IP limit could be dodged. A locked account
+# unlocks by itself after the cool-off.
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(minutes=15)
+AXES_LOCKOUT_PARAMETERS = ['username']
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_TEMPLATE = 'cemetery/lockout.html'
+# axes.W006 warns that client-based lockouts can be dodged by rotating browser
+# details; ours counts per username, which rotation doesn't affect (see above).
+SILENCED_SYSTEM_CHECKS = ['axes.W006']
 
 # Where @admin_required / @login_required send anonymous users (named URL).
 LOGIN_URL = 'login'
@@ -193,6 +214,12 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'true').lower() == 'true'
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+    # Tell browsers to use HTTPS only for this host. 30 days by default; this
+    # host only (onrender.com subdomains belong to other people), no preload.
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', str(60 * 60 * 24 * 30)))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
 
 
 # Email

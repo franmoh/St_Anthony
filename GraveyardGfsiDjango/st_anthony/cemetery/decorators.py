@@ -4,6 +4,12 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 
 
+def is_admin_user(user):
+    """Active, unlocked admin. Also decides who may see private details
+    (contacts, payments) on otherwise public pages."""
+    return bool(user.is_authenticated and user.is_active and not user.is_locked and user.is_staff)
+
+
 def admin_required(view_func):
     """Restrict a view to active, unlocked admin users.
 
@@ -21,7 +27,7 @@ def admin_required(view_func):
         user = request.user
         if not user.is_authenticated:
             return redirect_to_login(request.get_full_path())
-        if not (user.is_active and not user.is_locked and user.is_staff):
+        if not is_admin_user(user):
             raise PermissionDenied
         return view_func(request, *args, **kwargs)
 

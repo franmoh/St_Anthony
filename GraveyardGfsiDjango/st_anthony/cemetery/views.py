@@ -16,9 +16,11 @@ from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.template.loader import render_to_string
 
-from .decorators import admin_required
+from .decorators import admin_required, is_admin_user
+from .spam_guard import check_submission
 from .models import (
     ContactDetails,
     ContactMessage,
@@ -520,7 +522,9 @@ def detail(request):
             info = None
 
     payment = None
-    if info is not None:
+    # Next-of-kin contacts and payments are private: only admins get them.
+    show_private = is_admin_user(request.user)
+    if info is not None and show_private:
         mappings = DeceasedContactMapping.objects.select_related(
             'contact_details'
         ).filter(deceased_details=info)
@@ -546,6 +550,7 @@ def detail(request):
         'primary_contact': primary_contact,
         'payment': payment,
         'maintenance_details': maintenance_details,
+        'show_private': show_private,
     })
 
 
@@ -737,6 +742,9 @@ def plot_info(request, pk):
         pk=pk,
     )
     deceased_list, contacts = _get_plot_related_data(plot)
+    # Public map panel: contact details only for admins.
+    if not is_admin_user(request.user):
+        contacts = contacts.none()
 
     return render(request, 'cemetery/partials/plot_info.html', {
         'plot': plot,
@@ -1690,6 +1698,11 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             auth_login(request, user)
+            # Only follow ?next= back into this site; anything else would be an open redirect.
+            if not url_has_allowed_host_and_scheme(
+                next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+            ):
+                next_url = ''
             return redirect(next_url or "home")
 
         login_error = "Invalid username or password."
@@ -1771,6 +1784,16 @@ def _validate_contact_message_fields(post):
 
 @require_POST
 def contact_submit(request):
+    verdict = check_submission(request.POST)
+    if verdict == 'bot':
+        # Look successful so the bot moves on; nothing is saved or emailed.
+        return render(request, 'cemetery/partials/contact_form.html', {'sent': True})
+    if verdict == 'expired':
+        return render(request, 'cemetery/partials/contact_form.html', {
+            'errors': {'form': 'This form expired. Please check your message and send it again.'},
+            'form_data': request.POST,
+        })
+
     data, errors = _validate_contact_message_fields(request.POST)
     if errors:
         return render(request, 'cemetery/partials/contact_form.html', {
@@ -1800,7 +1823,13 @@ def newsletter_subscribe(request):
     email = (request.POST.get('email') or '').strip()
     error = None
 
-    if not email:
+    verdict = check_submission(request.POST)
+    if verdict == 'bot':
+        # Look successful so the bot moves on; nothing is saved.
+        return render(request, 'cemetery/partials/newsletter_form.html', {'subscribed': True})
+    if verdict == 'expired':
+        error = 'This form expired. Please try again.'
+    elif not email:
         error = 'Email is required.'
     else:
         try:

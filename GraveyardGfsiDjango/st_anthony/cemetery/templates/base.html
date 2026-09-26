@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="{% versioned_static 'css/output.css' %}">
     <title>{% block title %}St. Anthony Cemetery{% endblock %}</title>
 
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    {# htmx 2.0.4, served from this site (no third-party CDN on admin pages). #}
+    <script src="{% versioned_static 'js/htmx-2.0.4.min.js' %}"></script>
 
     {% block extra_head %}{% endblock %}
 </head>

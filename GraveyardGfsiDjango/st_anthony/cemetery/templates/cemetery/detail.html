@@ -99,6 +99,10 @@
                 <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Contact</h2>
             </div>
             <div class="p-5 sm:p-6 flex-1">
+                {% if not show_private %}
+                <p class="text-base text-gray-600">Family contact details are kept private.</p>
+                <a href="{% url 'contact' %}" class="inline-block mt-2 text-sm font-medium text-sky-800 hover:underline">Contact the parish office &rarr;</a>
+                {% else %}
                 {% with contact=primary_contact.contact_details %}
                 {% if contact %}
                 <p class="text-lg font-semibold text-gray-900 break-words">
@@ -127,15 +131,17 @@
                 <p class="text-base text-gray-400">No contact on file.</p>
                 {% endif %}
                 {% endwith %}
+                {% endif %}
             </div>
         </section>
     </div>
 
     {% include 'cemetery/partials/deceased_note_section.html' with deceased=info %}
 
-    <div class="grid gap-6 mt-6 mb-10 lg:grid-cols-2">
+    <div class="grid gap-6 mt-6 mb-10{% if show_private %} lg:grid-cols-2{% endif %}">
 
-        <!-- Payment -->
+        {% if show_private %}
+        <!-- Payment (admins only) -->
         <section class="bg-white border border-gray-200 shadow-sm flex flex-col">
             <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100">
                 <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Payment</h2>
@@ -163,6 +169,7 @@
                 {% endif %}
             </div>
         </section>
+        {% endif %}
 
         <!-- Maintenance -->
         <section class="bg-white border border-gray-200 shadow-sm flex flex-col">
@@ -185,7 +192,7 @@
                         {% if maint.maintenance_type.description %}
                         <p class="mt-0.5 text-sm text-gray-600">{{ maint.maintenance_type.description }}</p>
                         {% endif %}
-                        {% if maint.contact_details %}
+                        {% if maint.contact_details and show_private %}
                         <p class="mt-0.5 text-sm text-gray-500">By {{ maint.contact_details.first_name }} {{ maint.contact_details.last_name }}</p>
                         {% endif %}
                         {% if maint.note %}
