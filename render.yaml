@@ -7,9 +7,10 @@ services:
     name: st-anthony-cemetery
     runtime: docker
     plan: free
+    # The Docker paths below are resolved relative to rootDir.
     rootDir: GraveyardGfsiDjango/st_anthony
-    dockerfilePath: GraveyardGfsiDjango/st_anthony/Dockerfile
-    dockerContext: GraveyardGfsiDjango/st_anthony
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     envVars:
       - key: SECRET_KEY
         generateValue: true
