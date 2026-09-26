@@ -9,8 +9,8 @@ so the placeholder updates without touching the typed value.
     type="text"
     name="search_query"
     {% if oob %}hx-swap-oob="true"{% endif %}
-    placeholder="{% if filter_type == 'Lastname' %}Last name, e.g. Doe{% elif filter_type == 'Firstname' %}First name, e.g. John{% elif filter_type == 'DOB' %}Birth year, e.g. 1940 or 1940-1950{% elif filter_type == 'DOD' %}Death year, e.g. 2020 or 2010-2020{% else %}Name and/or year, e.g. John Doe 1920{% endif %}"
+    placeholder="{% if filter_type == 'Lastname' %}Last name, e.g. Doe{% elif filter_type == 'Firstname' %}First name, e.g. John{% elif filter_type == 'DOB' %}Birth year, e.g. 1940 or 1940-1950{% elif filter_type == 'DOD' %}Death year, e.g. 2020 or 2010-2020{% else %}Name or year, e.g. John Doe 1920{% endif %}"
     aria-label="Search records"
     value="{{ search_query|default:'' }}"
-    class="w-full flex-1 h-11 border border-gray-200 px-4 text-sm text-gray-800 placeholder:text-gray-400
+    class="w-full sm:flex-1 h-11 border border-gray-200 px-4 text-base sm:text-sm text-gray-800 placeholder:text-gray-400
         focus:outline-none focus:ring-2 focus:ring-sky-700 focus:border-transparent">
