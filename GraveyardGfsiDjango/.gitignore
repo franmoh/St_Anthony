@@ -95,3 +95,4 @@ venv/
 staticfiles/
 # Database export for Aiven (contains all records and the admin login hash)
 database/*_for_aiven.sql
+database/ca.pem
