@@ -9,6 +9,10 @@ Step 2 - load that file into the Aiven service (asks for the password):
 
     python move_to_aiven.py load --host HOST --port PORT --ca ca.pem
 
+Check at any time whether the data is there (read-only):
+
+    python move_to_aiven.py check --host HOST --port PORT --ca ca.pem
+
 HOST, PORT and ca.pem (the "CA certificate") come from the Aiven service's
 Overview page. The export contains the admin login hash and all records, so it
 is git-ignored; delete it once the load is done. Needs: pip install pymysql
@@ -65,18 +69,23 @@ def statements(sql):
         yield '\n'.join(buffer)
 
 
-def load(sql_path, host, port, user, database, ca, assume_yes):
+def _connect(host, port, user, database, ca):
+    """Open a connection (asking for the password) and report version and TLS.
+    Returns (connection, list of existing table names)."""
     try:
         import pymysql
     except ModuleNotFoundError:
         sys.exit("pymysql is required:  pip install pymysql")
-    if not sql_path.is_file():
-        sys.exit(f"{sql_path} not found - run 'python move_to_aiven.py export' first.")
+    if ca and not Path(ca).is_file():
+        sys.exit(f"CA certificate not found: {ca}")
 
     password = getpass.getpass(f"Password for {user}@{host}: ")
     ssl = {'ca': str(ca)} if ca else None
-    conn = pymysql.connect(host=host, port=port, user=user, password=password, database=database,
-                           charset='utf8mb4', ssl=ssl, autocommit=True)
+    try:
+        conn = pymysql.connect(host=host, port=port, user=user, password=password, database=database,
+                               charset='utf8mb4', ssl=ssl, autocommit=True, connect_timeout=15)
+    except pymysql.MySQLError as e:
+        sys.exit(f"Could not connect to {host}:{port}: {e}")
     with conn.cursor() as cur:
         cur.execute('SELECT VERSION()')
         version = cur.fetchone()[0]
@@ -85,6 +94,39 @@ def load(sql_path, host, port, user, database, ca, assume_yes):
         cur.execute('SHOW TABLES')
         existing = [r[0] for r in cur.fetchall()]
     print(f"Connected to {database} on {host}:{port} (MySQL {version}, TLS: {cipher or 'NOT ENCRYPTED'})")
+    return conn, existing
+
+
+# What a complete load contains (from the cemetery CSV import).
+EXPECTED_ROWS = {'Section': 8, 'PlotDetails': 4316, 'DeceasedDetails': 2558}
+
+
+def check(host, port, user, database, ca):
+    """Read-only: show whether the cemetery data is in the target database."""
+    conn, existing = _connect(host, port, user, database, ca)
+    print(f"{len(existing)} tables (a full load has 24)")
+    ok = len(existing) >= 24
+    with conn.cursor() as cur:
+        for table in CHECK_TABLES:
+            if table not in existing:
+                print(f"  {table:18} MISSING")
+                ok = False
+                continue
+            cur.execute(f'SELECT COUNT(*) FROM `{table}`')
+            rows = cur.fetchone()[0]
+            expected = EXPECTED_ROWS.get(table)
+            note = '' if expected is None else ('  ok' if rows == expected else f'  (expected {expected})')
+            print(f"  {table:18} {rows} rows{note}")
+            if (expected is not None and rows != expected) or rows == 0:
+                ok = False
+    conn.close()
+    print("Looks fully loaded." if ok else "NOT fully loaded - run the load step again.")
+
+
+def load(sql_path, host, port, user, database, ca, assume_yes):
+    if not sql_path.is_file():
+        sys.exit(f"{sql_path} not found - run 'python move_to_aiven.py export' first.")
+    conn, existing = _connect(host, port, user, database, ca)
 
     if existing and not assume_yes:
         answer = input(f"{database} already has {len(existing)} tables; the load replaces those it contains. "
@@ -123,9 +165,18 @@ def main():
     ld.add_argument('--file', type=Path, default=DEFAULT_FILE)
     ld.add_argument('--yes', action='store_true', help="Don't ask before replacing existing tables.")
 
+    ck = sub.add_parser('check', help="Read-only: show whether the data is loaded.")
+    ck.add_argument('--host', required=True)
+    ck.add_argument('--port', type=int, required=True)
+    ck.add_argument('--user', default='avnadmin')
+    ck.add_argument('--database', default='defaultdb')
+    ck.add_argument('--ca', type=Path, help="Aiven CA certificate (ca.pem).")
+
     args = parser.parse_args()
     if args.command == 'export':
         export(args.container, args.database, args.out)
+    elif args.command == 'check':
+        check(args.host, args.port, args.user, args.database, args.ca)
     else:
         load(args.file, args.host, args.port, args.user, args.database, args.ca, args.yes)
 
