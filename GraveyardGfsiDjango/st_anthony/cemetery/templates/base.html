@@ -50,9 +50,11 @@
                     <ul class="flex flex-col lg:flex-row gap-1 lg:gap-2 text-gray-200 font-semibold text-lg">
                         <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                                href="{% url 'home' %}">Search</a></li>
-                        <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" href="{% url 'plot' %}">Plot Map</a></li>
-                        {% if request.user.is_authenticated and request.user.is_staff %}
+                        {# Manage Plots is the same map with editing, so admins get it instead of Plot Map. #}
+                        {% if is_admin %}
                         <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" href="{% url 'manage_plots' %}">Manage Plots</a></li>
+                        {% else %}
+                        <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" href="{% url 'plot' %}">Plot Map</a></li>
                         {% endif %}
                         <li><a class="block lg:inline-flex items-center rounded-md px-3 py-2 transition-all duration-150 hover:bg-white/15 hover:text-white hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                                href="{% url 'about' %}">About us</a></li>

@@ -58,7 +58,7 @@
         <section class="lg:col-span-2 bg-white border border-gray-200 shadow-sm flex flex-col">
             <div class="px-5 sm:px-6 py-3 bg-blue-50 border-b border-blue-100 flex items-center justify-between gap-3">
                 <h2 class="text-sm font-semibold text-sky-900 uppercase tracking-wide">Resting Place</h2>
-                <a href="{% url 'plot' %}?plot={{ plot.pk }}" class="text-sm font-medium text-sky-800 hover:text-sky-950 hover:underline whitespace-nowrap">
+                <a href="{% if is_admin %}{% url 'manage_plots' %}{% else %}{% url 'plot' %}{% endif %}?plot={{ plot.pk }}" class="text-sm font-medium text-sky-800 hover:text-sky-950 hover:underline whitespace-nowrap">
                     View on plot map &rarr;
                 </a>
             </div>

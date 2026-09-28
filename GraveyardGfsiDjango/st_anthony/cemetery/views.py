@@ -5,15 +5,16 @@ from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.validators import validate_email
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.db.models import Count, Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -1722,6 +1723,17 @@ def login_view(request):
 def logout_view(request):
     auth_logout(request)
     return redirect("home")
+
+
+@never_cache
+def healthz(request):
+    """For an uptime monitor: one small query, so the app and the free Aiven
+    database both see regular activity. 503 if the database can't be reached."""
+    try:
+        Section.objects.exists()
+    except DatabaseError:
+        return JsonResponse({'status': 'error', 'database': 'unreachable'}, status=503)
+    return JsonResponse({'status': 'ok'})
 
 
 def about(request):

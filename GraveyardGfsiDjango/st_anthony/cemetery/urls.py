@@ -118,6 +118,7 @@ urlpatterns = [
     ),
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
+    path("healthz/", views.healthz, name="healthz"),
     path("about-us/", views.about, name="about"),
     path("contact-us/", views.contact, name="contact"),
     path("contact-us/submit/", views.contact_submit, name="contact_submit"),
