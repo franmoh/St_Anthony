@@ -16,7 +16,8 @@
                     {% for side_group in unit_group.sides %}
                     <div>
                         <p class="text-sm font-medium text-gray-600 mb-1">Side {{ side_group.side }}</p>
-                        <div class="flex overflow-x-auto pb-1">
+                        {# p-2: room for the selected cube's ring, which the scroll area would otherwise clip #}
+                        <div class="flex overflow-x-auto p-2">
                             {% for p in side_group.niches %}{% include 'cemetery/partials/plot_grid_niche_button.html' with section_constant=item.section.section_constant %}{% endfor %}
                         </div>
                     </div>

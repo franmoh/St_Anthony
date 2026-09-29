@@ -17,7 +17,8 @@
         <p class="text-base text-gray-400 text-center">No niches</p>
         {% endif %}
     {% elif item.rows %}
-    <div class="overflow-x-auto">
+    {# p-2: room for the selected cube's ring, which the scroll area would otherwise clip #}
+    <div class="overflow-x-auto p-2">
         <table class="border-collapse">
             {% for row_key, row_plots in item.rows.items %}
             <tr>
