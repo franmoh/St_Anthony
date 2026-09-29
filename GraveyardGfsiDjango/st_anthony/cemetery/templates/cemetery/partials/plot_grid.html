@@ -17,13 +17,14 @@
         <p class="text-base text-gray-400 text-center">No niches</p>
         {% endif %}
     {% elif item.rows %}
-    {# p-2: room for the selected cube's ring, which the scroll area would otherwise clip #}
-    <div class="overflow-x-auto p-2">
+    {# py-2/pr-2 give the selected ring room; no left padding, or cubes show beside the sticky labels #}
+    <div class="overflow-x-auto py-2 pr-2">
         <table class="border-collapse">
             {% for row_key, row_plots in item.rows.items %}
             <tr>
                 {% if item.has_row_labels %}
-                <td class="text-base text-gray-500 pr-2 py-1 font-medium whitespace-nowrap align-middle sticky left-0 bg-white">
+                {# z-20: stays above every cube (selected/hovered too); the shadow shows cubes sliding under #}
+                <td class="plot-row-label text-base text-gray-500 pr-2 py-1 font-medium whitespace-nowrap align-middle sticky left-0 z-20 bg-white shadow-[6px_0_6px_-6px_rgb(0_0_0/0.25)]">
                     {% if row_key %}Row {{ row_key }}{% endif %}
                 </td>
                 {% endif %}

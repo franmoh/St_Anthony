@@ -26,6 +26,10 @@
   /* Wrapper around each cube (td for plots, div for niches): the same 6px
      gap between cubes at every screen size, with room for the selected ring. */
   .plot-cell { @apply p-[3px]; }
+  /* First cube of a ground-plot row: room on the left so its selected ring isn't
+     hidden under the sticky row label (or clipped by the row's left edge). */
+  .plot-row-label + .plot-cell,
+  tr > .plot-cell:first-child { @apply pl-2; }
   /* The plot whose details are open in the side panel. */
   .plot-btn.is-selected { @apply relative z-10 scale-110 ring-[3px] ring-sky-950 ring-offset-2 font-bold; }
 }
