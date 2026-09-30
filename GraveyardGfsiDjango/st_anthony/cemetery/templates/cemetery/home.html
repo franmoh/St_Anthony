@@ -55,22 +55,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block extra_scripts %}
-<script>
-    (function () {
-        document.body.addEventListener('focusin', function (event) {
-            if (event.target.id !== 'search-input') return;
-            var cards = document.getElementById('parish-info-cards');
-            if (cards) cards.parentElement.classList.add('hidden');
-        });
-        document.body.addEventListener('focusout', function (event) {
-            if (event.target.id !== 'search-input') return;
-            var cards = document.getElementById('parish-info-cards');
-            if (cards && !event.target.value.trim()) {
-                cards.parentElement.classList.remove('hidden');
-            }
-        });
-    })();
-</script>
-{% endblock %}

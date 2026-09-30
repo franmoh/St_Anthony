@@ -13,7 +13,7 @@
     <!-- Back to results: returns to the paginated search if we came from it -->
     <div class="mt-6 mb-4">
         <a href="{% url 'home' %}"
-           onclick="if (document.referrer.indexOf(location.origin) === 0 && history.length > 1) { history.back(); return false; }"
+           data-back-link
            class="inline-flex items-center gap-1 text-sm font-medium text-sky-800 hover:text-sky-950 hover:underline">
             &larr; Back to search
         </a>

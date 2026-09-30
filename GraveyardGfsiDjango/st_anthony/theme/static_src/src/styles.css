@@ -33,3 +33,12 @@
   /* The plot whose details are open in the side panel. */
   .plot-btn.is-selected { @apply relative z-10 scale-110 ring-[3px] ring-sky-950 ring-offset-2 font-bold; }
 }
+
+/* Plot map status filter: unchecking a status dims its plots (see static/js/plot-map.js). */
+body[data-hide-statuses~="Available"] [data-plot-status="Available"],
+body[data-hide-statuses~="Reserved"] [data-plot-status="Reserved"],
+body[data-hide-statuses~="Occupied"] [data-plot-status="Occupied"],
+body[data-hide-statuses~="Unknown"] [data-plot-status="Unknown"] {
+    opacity: 0.2;
+    filter: grayscale(0.6);
+}

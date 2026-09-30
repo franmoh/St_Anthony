@@ -66,39 +66,3 @@
         </div>
     </form>
 </div>
-<script>
-(function () {
-    const form = document.querySelector('[data-payment-edit-form]');
-    if (!form) return;
-    const paid = form.querySelector('[name="balance_paid"]');
-    const due = form.querySelector('[name="balance_due"]');
-    const status = form.querySelector('[name="payment_status"]');
-    if (!paid || !due || !status) return;
-
-    const total = (parseFloat(paid.value) || 0) + (parseFloat(due.value) || 0);
-
-    function isPaidSelected() {
-        const opt = status.options[status.selectedIndex];
-        return opt && opt.dataset.constant === 'PAID';
-    }
-
-    function syncDueLock() {
-        if (isPaidSelected()) {
-            due.value = '0.00';
-            due.readOnly = true;
-            due.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
-        } else {
-            due.readOnly = false;
-            due.classList.remove('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
-        }
-    }
-
-    paid.addEventListener('input', () => {
-        if (isPaidSelected()) return;
-        const p = parseFloat(paid.value) || 0;
-        due.value = Math.max(0, total - p).toFixed(2);
-    });
-    status.addEventListener('change', syncDueLock);
-    syncDueLock();
-})();
-</script>

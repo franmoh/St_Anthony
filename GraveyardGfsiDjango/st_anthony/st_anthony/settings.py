@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from django.utils.csp import CSP
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -63,6 +64,7 @@ INTERNAL_IPS = ['127.0.0.1']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.csp.ContentSecurityPolicyMiddleware',
     # Serves collected static files in production (no separate web server on Render).
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -180,6 +182,24 @@ AXES_LOCKOUT_TEMPLATE = 'cemetery/lockout.html'
 # axes.W006 warns that client-based lockouts can be dodged by rotating browser
 # details; ours counts per username, which rotation doesn't affect (see above).
 SILENCED_SYSTEM_CHECKS = ['axes.W006']
+
+# Content-Security-Policy (Django's built-in support), in every environment so
+# violations show up during development too. Scripts load only from this site:
+# templates have no inline <script> or on*= handlers (the code is in static/js/).
+# Inline styles stay allowed - htmx's loading indicator and the spam-guard trap
+# field use them, and they can't run code.
+SECURE_CSP = {
+    'default-src': [CSP.SELF],
+    'script-src': [CSP.SELF],
+    'style-src': [CSP.SELF, CSP.UNSAFE_INLINE],
+    'img-src': [CSP.SELF, 'data:'],
+    'font-src': [CSP.SELF],
+    'connect-src': [CSP.SELF],
+    'object-src': [CSP.NONE],
+    'base-uri': [CSP.SELF],
+    'form-action': [CSP.SELF],
+    'frame-ancestors': [CSP.NONE],
+}
 
 # Where @admin_required / @login_required send anonymous users (named URL).
 LOGIN_URL = 'login'

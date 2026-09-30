@@ -1,6 +1,6 @@
 {% comment %}
 Per-section status counts that double as the plot filter: unchecking a status dims its plots.
-Re-rendered with hx_swap_oob after plot edits; plot_status_filter.html restores the checkbox state.
+Re-rendered with hx_swap_oob after plot edits; static/js/plot-map.js restores the checkbox state.
 {% endcomment %}
 {% if item.stats %}
 <div id="section-stats-{{ item.section.id }}" role="group" aria-label="Filter plots by status"

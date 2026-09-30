@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static_version %}
 
 {% block title %}Plot Map - St. Anthony Cemetery{% endblock %}
 
@@ -6,8 +7,7 @@
 <div class="mb-6">
     <h1 class="text-3xl sm:text-4xl font-bold text-blue-950 tracking-tight">Cemetery Plot Map</h1>
 </div>
-{% include "cemetery/partials/plot_status_filter.html" %}
-{% include "cemetery/partials/plot_selection.html" %}
+<script src="{% versioned_static 'js/plot-map.js' %}"></script>
 
 <div class="flex flex-col lg:flex-row gap-6">
 
