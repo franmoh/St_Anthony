@@ -30,8 +30,10 @@ This directory contains:
 - Contact Us — parish office details, a working contact form (persists to DB, optional email notification), the three churches' full addresses, and the same newsletter signup.
 
 ### Data capture (Django-managed tables)
-- `ContactMessage` — contact form submissions, reviewable in Django admin.
-- `NewsletterSubscriber` — email signups, reviewable in Django admin.
+- `ContactMessage` — contact form submissions (table `cemetery_contactmessage`; read them in MySQL Workbench).
+- `NewsletterSubscriber` — email signups (table `cemetery_newslettersubscriber`; read them in MySQL Workbench).
+
+The Django admin site (`/admin/`) is disabled.
 
 ### Tech stack
 - Django 6 + MariaDB/MySQL (mirrors most tables from an existing schema via `managed=False`), Tailwind CSS (pre-built, no Node needed at runtime), htmx for dynamic UI throughout, django-tailwind for styling pipeline.

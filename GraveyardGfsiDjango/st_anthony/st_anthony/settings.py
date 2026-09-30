@@ -47,7 +47,6 @@ if RENDER_EXTERNAL_HOSTNAME:
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -170,7 +169,7 @@ AUTHENTICATION_BACKENDS = [
     'cemetery.backends.UsersAuthBackend',
 ]
 
-# Login lockout (django-axes), for both /login/ and /admin/login/.
+# Login lockout (django-axes) for /login/.
 # Counted per username: behind Render's proxy the client IP comes from a
 # spoofable header, so a per-IP limit could be dodged. A locked account
 # unlocks by itself after the cool-off.
