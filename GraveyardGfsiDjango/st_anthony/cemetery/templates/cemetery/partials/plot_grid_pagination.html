@@ -1,6 +1,7 @@
 {% comment %}
-Pages for a section grid (Manage Plots): 10 rows per page, or one columbarium unit per page
-with a link per unit. Links keep the section and swap the whole section view, like the tabs.
+Pages for a section grid (Manage Plots): 10 rows per page, or 2 columbarium units per page
+with a link per page named by its units ("30–34"). Links keep the section and swap the whole
+section view, like the tabs.
 Renders nothing for a single page.
 {% endcomment %}
 {% with page=item.grid_page sid=item.section.id %}
@@ -18,15 +19,17 @@ Renders nothing for a single page.
     {% if item.unit_links %}
     {# Phones: unit links take their own line above Prev/Next #}
     <div class="order-first w-full sm:order-none sm:w-auto flex flex-wrap items-center justify-center gap-1.5">
-        <span class="text-sm text-gray-500 mr-1">Unit</span>
+        {% with noun=page.paginator.per_page|pluralize:"Unit,Units" %}
+        <span class="text-sm text-gray-500 mr-1">{{ noun }}</span>
         {% for num, unit in item.unit_links %}
         {% if num == page.number %}
-        <span class="min-w-9 px-2 py-1 text-center border border-blue-950 bg-blue-950 text-white text-sm font-semibold" aria-current="page">{{ unit }}</span>
+        <span class="min-w-9 px-2 py-1 text-center border border-blue-950 bg-blue-950 text-white text-sm font-semibold whitespace-nowrap" aria-current="page">{{ unit }}</span>
         {% else %}
-        <a href="?section={{ sid }}&amp;page={{ num }}" hx-get="?section={{ sid }}&amp;page={{ num }}" aria-label="Unit {{ unit }}"
-           class="min-w-9 px-2 py-1 text-center border border-gray-200 text-sm font-medium text-blue-900 hover:bg-blue-50 transition-colors">{{ unit }}</a>
+        <a href="?section={{ sid }}&amp;page={{ num }}" hx-get="?section={{ sid }}&amp;page={{ num }}" aria-label="{{ noun }} {{ unit }}"
+           class="min-w-9 px-2 py-1 text-center border border-gray-200 text-sm font-medium text-blue-900 hover:bg-blue-50 transition-colors whitespace-nowrap">{{ unit }}</a>
         {% endif %}
         {% endfor %}
+        {% endwith %}
     </div>
     {% else %}
     <span class="flex-1 min-w-0 text-sm text-gray-500 text-center">

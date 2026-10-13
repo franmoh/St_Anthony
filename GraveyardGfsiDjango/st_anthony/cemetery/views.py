@@ -727,11 +727,13 @@ def _build_section_page(request, detail_url_name, rows_per_page=None, units_per_
                 lambda entry: (p for side in entry[1]['sides'] for p in side['niches']),
             )
             columbarium_layout = _group_units_by_monument(grid_page.object_list)
-            # Page links named by each page's first unit number.
-            unit_links = [
-                (i // units_per_page + 1, unit['unit'])
-                for i, (_, unit) in enumerate(units) if i % units_per_page == 0
-            ]
+            # Page links named by the units on each page, e.g. "30" or "30–34".
+            unit_links = []
+            for start in range(0, len(units), units_per_page):
+                chunk = units[start:start + units_per_page]
+                first, last = chunk[0][1]['unit'], chunk[-1][1]['unit']
+                label = first if first == last else f'{first}–{last}'
+                unit_links.append((start // units_per_page + 1, label))
     elif rows_per_page:
         grid_page = get_page(list(rows.items()), rows_per_page, lambda entry: entry[1])
         rows = dict(grid_page.object_list)
@@ -804,7 +806,7 @@ def plot_info(request, pk):
 # --- Admin/manage views ---
 
 MANAGE_PLOTS_ROWS_PER_PAGE = 10
-MANAGE_PLOTS_UNITS_PER_PAGE = 1  # columbarium
+MANAGE_PLOTS_UNITS_PER_PAGE = 2  # columbarium
 
 
 @admin_required
