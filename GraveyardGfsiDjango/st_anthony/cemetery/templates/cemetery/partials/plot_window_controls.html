@@ -1,0 +1,13 @@
+{% comment %}
+Steps a plot grid sideways instead of a scrollbar: static/js/plot-map.js shows as many plots
+per row as fit the screen, fills in the "1–12 of 68" text and hides this bar when all fit.
+{% endcomment %}
+<div class="plot-window-controls" data-window-controls hidden>
+    <button type="button" data-window-prev aria-label="Previous plots">
+        <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l-5 5 5 5"/></svg>
+    </button>
+    <span class="text-sm text-gray-500 tabular-nums" data-window-status aria-live="polite"></span>
+    <button type="button" data-window-next aria-label="Next plots">
+        <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5l5 5-5 5"/></svg>
+    </button>
+</div>

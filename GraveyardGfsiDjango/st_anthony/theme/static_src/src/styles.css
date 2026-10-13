@@ -26,10 +26,19 @@
   /* Wrapper around each cube (td for plots, div for niches): the same 6px
      gap between cubes at every screen size, with room for the selected ring. */
   .plot-cell { @apply p-[3px]; }
-  /* First cube of a ground-plot row: room on the left so its selected ring isn't
-     hidden under the sticky row label (or clipped by the row's left edge). */
+  /* First cube shown in a row: room on the left so its selected ring clears the
+     row label (or the row's left edge). .is-first-shown marks it once the grid
+     is stepped sideways (static/js/plot-map.js). */
   .plot-row-label + .plot-cell,
-  tr > .plot-cell:first-child { @apply pl-2; }
+  tr > .plot-cell:first-child,
+  .plot-cell.is-first-shown { @apply pl-2; }
+  /* Steps a plot grid sideways in place of a scrollbar: ‹ 1–12 of 68 › */
+  .plot-window-controls { @apply flex items-center justify-end gap-2 mb-1; }
+  .plot-window-controls button {
+    @apply inline-flex items-center justify-center size-9 border border-gray-200 bg-white text-blue-900
+      hover:bg-blue-50 transition-colors cursor-pointer
+      disabled:text-gray-300 disabled:bg-white disabled:cursor-not-allowed;
+  }
   /* The plot whose details are open in the side panel. */
   .plot-btn.is-selected { @apply relative z-10 scale-110 ring-[3px] ring-sky-950 ring-offset-2 font-bold; }
   /* Plot details pop-up (<dialog>, static/js/plot-map.js). Preflight zeroes the

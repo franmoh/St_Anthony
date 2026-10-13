@@ -1,4 +1,5 @@
-// Plot Map and Manage Plots: status filter checkboxes and plot selection.
+// Plot Map and Manage Plots: status filter checkboxes, grids that fit the screen
+// (no sideways scrolling), plot selection and the details pop-up.
 // Loaded once per page, outside the htmx-swapped section view.
 
 // Status filter: unchecking a status dims its plots. Hidden statuses live on
@@ -32,6 +33,139 @@
             box.checked = !hidden.has(box.value);
         });
     });
+})();
+
+// Plot grids show only the plots that fit across the screen, with no sideways scrollbar.
+// A [data-plot-window] holds one or more [data-window-viewport]s of [data-window-row]s
+// (a row label, then .plot-cell cubes) and a [data-window-controls] bar whose ‹ › buttons
+// step every row together ("1–12 of 68"). Recounted when the grid's width changes.
+const PlotWindow = (function () {
+    // .is-first-shown pads 8px on the left instead of 3px (styles.css).
+    const FIRST_CELL_EXTRA = 5;
+
+    function rowsOf(win) { return win.querySelectorAll('[data-window-row]'); }
+    function cellsOf(row) { return row.querySelectorAll(':scope > .plot-cell'); }
+
+    function maxColumns(win) {
+        let max = 0;
+        rowsOf(win).forEach(function (row) { max = Math.max(max, cellsOf(row).length); });
+        return max;
+    }
+
+    // Width of one cube with its gap: a shown cube that isn't first in its row.
+    function cellWidth(win) {
+        const cell = win.querySelector('[data-window-row] > .plot-cell:not([hidden]) ~ .plot-cell:not([hidden])');
+        if (cell) return cell.offsetWidth;
+        const button = win.querySelector('.plot-cell:not([hidden]) .plot-btn');
+        return button ? button.offsetWidth + 6 : 0;
+    }
+
+    function labelWidth(viewport) {
+        let width = 0;
+        viewport.querySelectorAll('.plot-row-label').forEach(function (label) {
+            width = Math.max(width, label.offsetWidth);
+        });
+        return width;
+    }
+
+    function contentWidth(el) {
+        const style = getComputedStyle(el);
+        return el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    }
+
+    // How many cubes fit beside the row labels in the narrowest viewport.
+    function fitCount(win) {
+        const cube = cellWidth(win);
+        if (!cube) return 1;
+        let fit = Infinity;
+        win.querySelectorAll('[data-window-viewport]').forEach(function (viewport) {
+            const room = contentWidth(viewport) - labelWidth(viewport) - FIRST_CELL_EXTRA;
+            fit = Math.min(fit, Math.floor(room / cube));
+        });
+        return fit === Infinity ? 1 : Math.max(1, fit);
+    }
+
+    function apply(win) {
+        const per = fitCount(win);
+        const total = maxColumns(win);
+        // Sets step by a screenful (1–5, 6–10, ...); the last one ends on the last plot
+        // so it's full width rather than a few cubes beside mostly empty rows.
+        const lastStart = Math.max(0, total - per);
+        const wanted = Number(win.dataset.windowStart || 0);
+        const start = wanted >= lastStart ? lastStart : Math.floor(wanted / per) * per;
+        win.dataset.windowStart = start;
+        win.dataset.windowPer = per;
+
+        rowsOf(win).forEach(function (row) {
+            let first = true;
+            cellsOf(row).forEach(function (cell, i) {
+                const shown = i >= start && i < start + per;
+                cell.hidden = !shown;
+                cell.classList.toggle('is-first-shown', shown && first);
+                if (shown) first = false;
+            });
+        });
+
+        const controls = win.querySelector('[data-window-controls]');
+        if (!controls) return;
+        controls.hidden = total <= per;
+        controls.querySelector('[data-window-status]').textContent =
+            (start + 1) + '–' + Math.min(start + per, total) + ' of ' + total;
+        controls.querySelector('[data-window-prev]').disabled = start === 0;
+        controls.querySelector('[data-window-next]').disabled = start >= lastStart;
+    }
+
+    function step(win, direction) {
+        const per = Number(win.dataset.windowPer) || 1;
+        const start = Number(win.dataset.windowStart || 0);
+        // Back from the (unaligned) last set returns to the regular steps.
+        win.dataset.windowStart = direction > 0
+            ? start + per
+            : Math.max(0, Math.ceil(start / per) * per - per);
+        apply(win);
+    }
+
+    // Move a grid so this cube is shown (e.g. a ?plot= deep link).
+    function reveal(cell) {
+        const win = cell.closest('[data-plot-window]');
+        const row = cell.closest('[data-window-row]');
+        if (!win || !row) return;
+        const index = Array.prototype.indexOf.call(cellsOf(row), cell);
+        const per = Number(win.dataset.windowPer) || fitCount(win);
+        win.dataset.windowStart = Math.floor(index / per) * per;
+        apply(win);
+    }
+
+    function init(win) {
+        if (win.dataset.windowReady) {
+            apply(win);  // e.g. a cube refreshed out of band: keep it within the window
+            return;
+        }
+        win.dataset.windowReady = 'true';
+        win.addEventListener('click', function (event) {
+            if (event.target.closest('[data-window-prev]')) step(win, -1);
+            else if (event.target.closest('[data-window-next]')) step(win, 1);
+        });
+        let lastWidth = 0;
+        new ResizeObserver(function () {
+            if (win.clientWidth === lastWidth) return;
+            lastWidth = win.clientWidth;
+            apply(win);
+        }).observe(win);
+        apply(win);
+    }
+
+    htmx.onLoad(function (root) {
+        const around = root.closest && root.closest('[data-plot-window]');
+        if (around) init(around);
+        root.querySelectorAll('[data-plot-window]').forEach(init);
+    });
+    // Web fonts can change label widths after the first count.
+    window.addEventListener('load', function () {
+        document.querySelectorAll('[data-plot-window][data-window-ready]').forEach(apply);
+    });
+
+    return {reveal: reveal};
 })();
 
 // Plot selection and the details pop-up. Clicking a plot loads its details into
@@ -87,7 +221,8 @@
         delete card.dataset.selectedPlot;
         if (!button) return;
         select(button);
-        button.scrollIntoView({block: 'center', inline: 'center'});
+        PlotWindow.reveal(button.parentElement);
+        button.scrollIntoView({block: 'center', inline: 'nearest'});
         htmx.trigger(button, 'click');
     });
 

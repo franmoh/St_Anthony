@@ -1,3 +1,6 @@
+{# data-plot-window: one set of controls steps every unit on the page sideways together (static/js/plot-map.js) #}
+<div data-plot-window>
+{% include 'cemetery/partials/plot_window_controls.html' %}
 <div class="grid grid-cols-1 {% if item.columbarium_layout|length > 1 %}md:grid-cols-2{% endif %} gap-4">
     {% for monument_group in item.columbarium_layout %}
     <div>
@@ -12,24 +15,21 @@
                 <p class="text-base font-bold text-gray-800 mb-2 text-center">
                     Unit {{ unit_group.unit }}
                 </p>
-                {# One scroll area for all of the unit's sides, so they scroll together; w-max sizes it to the longest side #}
-                {# Laid out like plot_grid.html: py-2/pr-2 give the selected ring room; no left padding, or cubes show beside the sticky labels #}
-                <div class="overflow-x-auto py-2 pr-2">
-                    <div class="w-max">
-                        {% for side_group in unit_group.sides %}
-                        <div class="flex items-center">
-                            {# Side label to the left, staying in view while scrolling (matches the row labels) #}
-                            <div class="plot-row-label text-base text-gray-500 pr-2 py-1 font-medium whitespace-nowrap sticky left-0 z-20 bg-gray-50 shadow-[6px_0_6px_-6px_rgb(0_0_0/0.25)]">
-                                Side {{ side_group.side }}
-                            </div>
-                            {% for p in side_group.niches %}{% include 'cemetery/partials/plot_grid_niche_button.html' with section_constant=item.section.section_constant %}{% endfor %}
+                {# Laid out like plot_grid.html: side label to the left of each row; py-2/pr-2 give the selected ring room #}
+                <div class="overflow-hidden py-2 pr-2" data-window-viewport>
+                    {% for side_group in unit_group.sides %}
+                    <div class="flex items-center" data-window-row>
+                        <div class="plot-row-label text-base text-gray-500 pr-2 py-1 font-medium whitespace-nowrap">
+                            Side {{ side_group.side }}
                         </div>
-                        {% endfor %}
+                        {% for p in side_group.niches %}{% include 'cemetery/partials/plot_grid_niche_button.html' with section_constant=item.section.section_constant %}{% endfor %}
                     </div>
+                    {% endfor %}
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
     {% endfor %}
+</div>
 </div>
