@@ -771,8 +771,17 @@ def _get_plot_related_data(plot):
     return deceased_list, contacts
 
 
-def _render_plot_map(request, template, detail_url_name, rows_per_page=None, units_per_page=None):
-    tabs, item = _build_section_page(request, detail_url_name, rows_per_page, units_per_page)
+# Plot Map and Manage Plots page their grids the same way.
+PLOT_GRID_ROWS_PER_PAGE = 10
+PLOT_GRID_UNITS_PER_PAGE = 2  # columbarium
+
+
+def _render_plot_map(request, template, detail_url_name):
+    tabs, item = _build_section_page(
+        request, detail_url_name,
+        rows_per_page=PLOT_GRID_ROWS_PER_PAGE,
+        units_per_page=PLOT_GRID_UNITS_PER_PAGE,
+    )
     context = {'tabs': tabs, 'item': item, 'detail_url_name': detail_url_name}
     if request.headers.get('HX-Request') == 'true':
         # Tab switch: swap just the tabs + selected section.
@@ -805,17 +814,9 @@ def plot_info(request, pk):
 
 # --- Admin/manage views ---
 
-MANAGE_PLOTS_ROWS_PER_PAGE = 10
-MANAGE_PLOTS_UNITS_PER_PAGE = 2  # columbarium
-
-
 @admin_required
 def manage_plots(request):
-    return _render_plot_map(
-        request, 'cemetery/manage_plots.html', 'manage_plot_detail',
-        rows_per_page=MANAGE_PLOTS_ROWS_PER_PAGE,
-        units_per_page=MANAGE_PLOTS_UNITS_PER_PAGE,
-    )
+    return _render_plot_map(request, 'cemetery/manage_plots.html', 'manage_plot_detail')
 
 
 @admin_required
