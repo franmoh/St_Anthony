@@ -650,9 +650,10 @@ def _set_detail_urls(plots, detail_url_name):
         p.detail_url = f'{head}{p.pk}{tail}'
 
 
-def _build_section_page(request, detail_url_name):
-    """Section tabs (counts only) plus the full grid for the one selected
-    section. Rendering every section at once meant thousands of buttons."""
+def _build_section_page(request, detail_url_name, rows_per_page=None):
+    """Section tabs (counts only) plus the grid for the one selected section.
+    Rendering every section at once meant thousands of buttons. With
+    rows_per_page, row sections are paged (?page=N); columbarium never is."""
     counts = _status_counts()
     tabs = [
         {'section': s, 'total': sum(counts.get(s.id, {}).values())}
@@ -690,11 +691,27 @@ def _build_section_page(request, detail_url_name):
     rows = {}
     for p in section_plots:
         rows.setdefault(p.row or '', []).append(p)
+    has_row_labels = any(key != '' for key in rows)
+
+    rows_page = None
+    if rows_per_page and not is_columbarium:
+        row_items = list(rows.items())
+        page_number = request.GET.get('page')
+        if selected_plot_id is not None:
+            # Open the page holding the deep-linked plot.
+            index = next(
+                (i for i, (_, plots) in enumerate(row_items) if any(p.pk == selected_plot_id for p in plots)),
+                0,
+            )
+            page_number = index // rows_per_page + 1
+        rows_page = Paginator(row_items, rows_per_page).get_page(page_number)
+        rows = dict(rows_page.object_list)
 
     item = {
         'section': section,
         'rows': rows,
-        'has_row_labels': any(key != '' for key in rows),
+        'rows_page': rows_page,
+        'has_row_labels': has_row_labels,
         'total': selected['total'],
         'stats': _compute_section_stats(counts.get(section.id, {})),
         'is_columbarium': is_columbarium,
@@ -722,8 +739,8 @@ def _get_plot_related_data(plot):
     return deceased_list, contacts
 
 
-def _render_plot_map(request, template, detail_url_name):
-    tabs, item = _build_section_page(request, detail_url_name)
+def _render_plot_map(request, template, detail_url_name, rows_per_page=None):
+    tabs, item = _build_section_page(request, detail_url_name, rows_per_page)
     context = {'tabs': tabs, 'item': item, 'detail_url_name': detail_url_name}
     if request.headers.get('HX-Request') == 'true':
         # Tab switch: swap just the tabs + selected section.
@@ -756,9 +773,15 @@ def plot_info(request, pk):
 
 # --- Admin/manage views ---
 
+MANAGE_PLOTS_ROWS_PER_PAGE = 5
+
+
 @admin_required
 def manage_plots(request):
-    return _render_plot_map(request, 'cemetery/manage_plots.html', 'manage_plot_detail')
+    return _render_plot_map(
+        request, 'cemetery/manage_plots.html', 'manage_plot_detail',
+        rows_per_page=MANAGE_PLOTS_ROWS_PER_PAGE,
+    )
 
 
 @admin_required

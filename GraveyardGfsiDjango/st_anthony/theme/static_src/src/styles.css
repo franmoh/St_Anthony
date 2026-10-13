@@ -32,6 +32,9 @@
   tr > .plot-cell:first-child { @apply pl-2; }
   /* The plot whose details are open in the side panel. */
   .plot-btn.is-selected { @apply relative z-10 scale-110 ring-[3px] ring-sky-950 ring-offset-2 font-bold; }
+  /* Copy of a wide grid's sideways scrollbar, placed above it (static/js/plot-map.js). */
+  .plot-top-scrollbar { @apply overflow-x-auto overflow-y-hidden; }
+  .plot-top-scrollbar > div { @apply h-px; }
 }
 
 /* Plot map status filter: unchecking a status dims its plots (see static/js/plot-map.js). */

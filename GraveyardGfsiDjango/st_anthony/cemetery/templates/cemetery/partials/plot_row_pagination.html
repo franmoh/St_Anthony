@@ -1,0 +1,30 @@
+{% comment %}
+Row pages for a section grid (Manage Plots). Links keep the section and swap the whole
+section view, like the tabs. Renders nothing for a single page.
+{% endcomment %}
+{% with page=item.rows_page sid=item.section.id %}
+{% if page and page.paginator.num_pages > 1 %}
+{% with link="px-3 py-1.5 border border-gray-200 text-sm font-medium text-blue-900 hover:bg-blue-50 transition-colors" disabled="px-3 py-1.5 border border-gray-100 text-sm font-medium text-gray-300 cursor-not-allowed" %}
+<nav class="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100"
+     aria-label="Row pages"
+     hx-target="#plot-section-view" hx-swap="innerHTML" hx-push-url="true" hx-indicator="#plot-section-view">
+    {% if page.has_previous %}
+    <a href="?section={{ sid }}&amp;page={{ page.previous_page_number }}" hx-get="?section={{ sid }}&amp;page={{ page.previous_page_number }}" class="{{ link }}">&larr; Prev</a>
+    {% else %}
+    <span class="{{ disabled }}" aria-disabled="true">&larr; Prev</span>
+    {% endif %}
+
+    <span class="text-sm text-gray-500 text-center">
+        Rows {{ page.start_index }}&ndash;{{ page.end_index }} of {{ page.paginator.count }}
+        <span class="text-gray-400">&middot; Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    </span>
+
+    {% if page.has_next %}
+    <a href="?section={{ sid }}&amp;page={{ page.next_page_number }}" hx-get="?section={{ sid }}&amp;page={{ page.next_page_number }}" class="{{ link }}">Next &rarr;</a>
+    {% else %}
+    <span class="{{ disabled }}" aria-disabled="true">Next &rarr;</span>
+    {% endif %}
+</nav>
+{% endwith %}
+{% endif %}
+{% endwith %}

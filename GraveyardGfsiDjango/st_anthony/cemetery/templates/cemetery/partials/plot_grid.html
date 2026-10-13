@@ -18,7 +18,8 @@
         {% endif %}
     {% elif item.rows %}
     {# py-2/pr-2 give the selected ring room; no left padding, or cubes show beside the sticky labels #}
-    <div class="overflow-x-auto py-2 pr-2">
+    {# data-top-scrollbar: plot-map.js adds a matching scrollbar above the grid #}
+    <div class="overflow-x-auto py-2 pr-2" data-top-scrollbar>
         <table class="border-collapse">
             {% for row_key, row_plots in item.rows.items %}
             <tr>
@@ -33,6 +34,7 @@
             {% endfor %}
         </table>
     </div>
+    {% include 'cemetery/partials/plot_row_pagination.html' %}
     {% else %}
     <p class="text-base text-gray-400 text-center">No plots</p>
     {% endif %}
