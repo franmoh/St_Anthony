@@ -12,16 +12,20 @@
                 <p class="text-base font-bold text-gray-800 mb-2 text-center">
                     Unit {{ unit_group.unit }}
                 </p>
-                <div class="space-y-2">
-                    {% for side_group in unit_group.sides %}
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Side {{ side_group.side }}</p>
-                        {# p-2: room for the selected cube's ring, which the scroll area would otherwise clip #}
-                        <div class="flex overflow-x-auto p-2">
-                            {% for p in side_group.niches %}{% include 'cemetery/partials/plot_grid_niche_button.html' with section_constant=item.section.section_constant %}{% endfor %}
+                {# One scroll area for all of the unit's sides, so they scroll together; w-max sizes it to the longest side #}
+                {# p-2: room for the selected cube's ring, which the scroll area would otherwise clip #}
+                <div class="overflow-x-auto p-2">
+                    <div class="w-max space-y-2">
+                        {% for side_group in unit_group.sides %}
+                        <div>
+                            {# sticky: the side label stays in view while scrolling #}
+                            <p class="sticky left-0 w-fit text-sm font-medium text-gray-600 mb-1">Side {{ side_group.side }}</p>
+                            <div class="flex">
+                                {% for p in side_group.niches %}{% include 'cemetery/partials/plot_grid_niche_button.html' with section_constant=item.section.section_constant %}{% endfor %}
+                            </div>
                         </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             </div>
             {% endfor %}
