@@ -1,0 +1,13 @@
+{% comment %}
+Plot details pop-up for Plot Map and Manage Plots. Plot buttons load their details into
+#plot-detail-panel; static/js/plot-map.js opens and closes the dialog.
+{% endcomment %}
+<dialog id="plot-detail-dialog" aria-label="Plot details" class="plot-detail-dialog">
+    <button type="button" data-close-plot-dialog aria-label="Close"
+            class="absolute top-3 right-3 z-10 inline-flex items-center justify-center size-9 text-sky-900 hover:bg-blue-100 transition-colors">
+        <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M5 5l10 10M15 5L5 15"/>
+        </svg>
+    </button>
+    <div id="plot-detail-panel" class="flex-1 min-h-0 overflow-y-auto overscroll-contain"></div>
+</dialog>

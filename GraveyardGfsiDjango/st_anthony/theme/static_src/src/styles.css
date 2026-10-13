@@ -32,10 +32,17 @@
   tr > .plot-cell:first-child { @apply pl-2; }
   /* The plot whose details are open in the side panel. */
   .plot-btn.is-selected { @apply relative z-10 scale-110 ring-[3px] ring-sky-950 ring-offset-2 font-bold; }
-  /* Copy of a wide grid's sideways scrollbar, placed above it (static/js/plot-map.js). */
-  .plot-top-scrollbar { @apply overflow-x-auto overflow-y-hidden; }
-  .plot-top-scrollbar > div { @apply h-px; }
+  /* Plot details pop-up (<dialog>, static/js/plot-map.js). Preflight zeroes the
+     dialog's margin, so m-auto centres it again. The panel inside scrolls; the
+     close button stays put. */
+  .plot-detail-dialog {
+    @apply m-auto w-[calc(100%-2rem)] max-w-lg max-h-[85vh] p-0 bg-white border border-gray-200 shadow-xl;
+    @apply open:flex flex-col backdrop:bg-slate-900/50;
+  }
 }
+
+/* No page scrolling behind the open pop-up. */
+html:has(#plot-detail-dialog[open]) { overflow: hidden; }
 
 /* Plot map status filter: unchecking a status dims its plots (see static/js/plot-map.js). */
 body[data-hide-statuses~="Available"] [data-plot-status="Available"],

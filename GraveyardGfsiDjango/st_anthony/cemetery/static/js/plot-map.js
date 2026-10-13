@@ -34,24 +34,47 @@
     });
 })();
 
-// Plot selection: the clicked plot stays highlighted while its details show, and a
-// section card with data-selected-plot (?plot=<pk>) selects and opens that plot.
+// Plot selection and the details pop-up. Clicking a plot loads its details into
+// #plot-detail-panel (htmx) inside the #plot-detail-dialog pop-up, which opens on the
+// first swap. The × button, a click outside the pop-up or Esc closes it (asking first
+// if a form has unsaved changes). A section card with data-selected-plot (?plot=<pk>)
+// selects and opens that plot. This script runs before the dialog is parsed, so
+// elements are looked up when needed.
 (function () {
     let selectedCellId = null;  // e.g. "plot-grid-1392"
 
-    function select(button) {
+    function dialog() { return document.getElementById('plot-detail-dialog'); }
+    function panel() { return document.getElementById('plot-detail-panel'); }
+
+    function deselect() {
         document.querySelectorAll('.plot-btn.is-selected').forEach(function (b) {
             b.classList.remove('is-selected');
             b.removeAttribute('aria-current');
         });
+    }
+
+    function select(button) {
+        deselect();
         button.classList.add('is-selected');
         button.setAttribute('aria-current', 'true');
         selectedCellId = button.parentElement.id;
     }
 
+    function requestClose() {
+        const unsaved = panel().querySelector('[data-dirty-tracked][data-dirty="true"]');
+        if (unsaved && !window.confirm('You have unsaved changes in this panel. Discard them?')) return;
+        dialog().close();
+        // Cleared here rather than on the dialog's 'close' event, which fires later
+        // (and not at all in a background tab) and could empty a just-reopened pop-up.
+        panel().replaceChildren();  // drops any unsaved-form state with it
+        deselect();
+        selectedCellId = null;
+    }
+
     document.addEventListener('click', function (event) {
         const button = event.target.closest('.plot-btn');
         if (button) select(button);
+        if (event.target.closest('[data-close-plot-dialog]')) requestClose();
     });
 
     htmx.onLoad(function (root) {
@@ -68,52 +91,33 @@
         htmx.trigger(button, 'click');
     });
 
-    // The detail panel scrolls on its own on wide screens: start each newly
-    // clicked plot at the top rather than where the last one was left.
+    // Open on the first swap; a newly clicked plot starts at the top of the pop-up.
     // (detail.elt is the swapped panel here; requestConfig.elt is what was clicked.)
     document.addEventListener('htmx:afterSwap', function (event) {
+        if (event.detail.target.id !== 'plot-detail-panel') return;
         const trigger = event.detail.requestConfig && event.detail.requestConfig.elt;
-        if (event.detail.target.id === 'plot-detail-panel' && trigger && trigger.closest('.plot-btn')) {
-            event.detail.target.scrollTop = 0;
-        }
+        if (trigger && trigger.closest('.plot-btn')) event.detail.target.scrollTop = 0;
+        if (!dialog().open) dialog().showModal();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const box = dialog();
+        if (!box) return;
+        // Esc: same unsaved-changes check as the × button.
+        box.addEventListener('cancel', function (event) {
+            event.preventDefault();
+            requestClose();
+        });
+        // A click on the backdrop lands on the <dialog> itself (its content fills it).
+        // Both press and release must be there, so a drag out of a text box doesn't close it.
+        let pressedOutside = false;
+        box.addEventListener('mousedown', function (event) {
+            pressedOutside = event.target === box;
+        });
+        box.addEventListener('click', function (event) {
+            if (pressedOutside && event.target === box) requestClose();
+            pressedOutside = false;
+        });
     });
 })();
 
-// Top scrollbar: a wide grid ([data-top-scrollbar]) gets a copy of its sideways
-// scrollbar above it, kept in step, so it can be scrolled left or right without
-// first scrolling down to its bottom edge. Hidden while the grid fits.
-(function () {
-    function attach(grid) {
-        if (grid.dataset.topScrollbarReady) return;
-        grid.dataset.topScrollbarReady = 'true';
-
-        const bar = document.createElement('div');
-        bar.className = 'plot-top-scrollbar';
-        bar.setAttribute('aria-hidden', 'true');
-        const spacer = document.createElement('div');
-        bar.appendChild(spacer);
-        grid.before(bar);
-
-        function resize() {
-            spacer.style.width = grid.scrollWidth + 'px';
-            bar.hidden = grid.scrollWidth <= grid.clientWidth;
-            bar.scrollLeft = grid.scrollLeft;
-        }
-        // Each side's scroll echoes back once; the equality check stops the loop.
-        bar.addEventListener('scroll', function () {
-            if (grid.scrollLeft !== bar.scrollLeft) grid.scrollLeft = bar.scrollLeft;
-        });
-        grid.addEventListener('scroll', function () {
-            if (bar.scrollLeft !== grid.scrollLeft) bar.scrollLeft = grid.scrollLeft;
-        });
-        const observer = new ResizeObserver(resize);
-        observer.observe(grid);
-        if (grid.firstElementChild) observer.observe(grid.firstElementChild);
-        resize();
-    }
-
-    htmx.onLoad(function (root) {
-        if (root.matches && root.matches('[data-top-scrollbar]')) attach(root);
-        root.querySelectorAll('[data-top-scrollbar]').forEach(attach);
-    });
-})();
