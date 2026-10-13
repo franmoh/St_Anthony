@@ -12,6 +12,10 @@
         {% include "cemetery/partials/alert.html" with variant="error" message=status_error %}
     {% endif %}
 
+    {# Phones: one column. Wider screens: plot and its edit form | people and notes #}
+    <div data-detail-columns class="md:grid md:grid-cols-2 md:gap-6">
+    <div class="min-w-0">
+
     {% if plot.plot_status == 'Available' %}
         {% if plot.niche %}
         <a href="{% url 'reserve_plot' pk=plot.pk %}"
@@ -105,10 +109,14 @@
             Save Changes
         </button>
     </form>
+    </div>
 
+    <div class="min-w-0 md:border-l md:border-gray-200 md:pl-6">
     {% include 'cemetery/partials/plot_deceased_section.html' %}
 
     {% include 'cemetery/partials/plot_contact_section.html' %}
 
     {% include 'cemetery/partials/plot_note_section.html' %}
+    </div>
+    </div>
 </div>
