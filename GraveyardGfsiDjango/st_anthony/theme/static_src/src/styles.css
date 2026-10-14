@@ -32,7 +32,7 @@
   .plot-row-label + .plot-cell,
   tr > .plot-cell:first-child,
   .plot-cell.is-first-shown { @apply pl-2; }
-  /* Steps a plot grid sideways in place of a scrollbar: ‹ 1–12 of 68 › */
+  /* Steps a plot grid sideways in place of a scrollbar: ‹ Plots 1–12 of 68 › */
   .plot-window-controls { @apply flex items-center justify-end gap-2 mb-1; }
   .plot-window-controls button {
     @apply inline-flex items-center justify-center size-9 border border-gray-200 bg-white text-blue-900

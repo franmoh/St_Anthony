@@ -1,6 +1,6 @@
 {# data-plot-window: one set of controls steps every unit on the page sideways together (static/js/plot-map.js) #}
 <div data-plot-window>
-{% include 'cemetery/partials/plot_window_controls.html' %}
+{% include 'cemetery/partials/plot_window_controls.html' with noun='Niches' %}
 <div class="grid grid-cols-1 {% if item.columbarium_layout|length > 1 %}md:grid-cols-2{% endif %} gap-4">
     {% for monument_group in item.columbarium_layout %}
     <div>

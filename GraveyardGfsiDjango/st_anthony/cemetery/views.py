@@ -715,8 +715,20 @@ def _build_section_page(request, detail_url_name, rows_per_page=None, units_per_
             page_number = index // per_page + 1
         return Paginator(entries, per_page).get_page(page_number)
 
+    def page_links(labels, per_page):
+        """[(page number, 'first–last')] naming each page by its first and last
+        row/unit, e.g. "A–J" or "30–34"; plain page numbers if any are unnamed."""
+        links = []
+        for start in range(0, len(labels), per_page):
+            chunk = labels[start:start + per_page]
+            if not all(chunk):
+                return [(n, str(n)) for n in range(1, (len(labels) - 1) // per_page + 2)]
+            label = chunk[0] if len(chunk) == 1 else f'{chunk[0]}–{chunk[-1]}'
+            links.append((start // per_page + 1, label))
+        return links
+
     grid_page = None
-    unit_links = None
+    grid_page_links = None
     columbarium_layout = None
     if is_columbarium:
         columbarium_layout = _build_columbarium_layout(section_plots)
@@ -727,22 +739,18 @@ def _build_section_page(request, detail_url_name, rows_per_page=None, units_per_
                 lambda entry: (p for side in entry[1]['sides'] for p in side['niches']),
             )
             columbarium_layout = _group_units_by_monument(grid_page.object_list)
-            # Page links named by the units on each page, e.g. "30" or "30–34".
-            unit_links = []
-            for start in range(0, len(units), units_per_page):
-                chunk = units[start:start + units_per_page]
-                first, last = chunk[0][1]['unit'], chunk[-1][1]['unit']
-                label = first if first == last else f'{first}–{last}'
-                unit_links.append((start // units_per_page + 1, label))
+            grid_page_links = page_links([unit['unit'] for _, unit in units], units_per_page)
     elif rows_per_page:
-        grid_page = get_page(list(rows.items()), rows_per_page, lambda entry: entry[1])
+        row_items = list(rows.items())
+        grid_page = get_page(row_items, rows_per_page, lambda entry: entry[1])
         rows = dict(grid_page.object_list)
+        grid_page_links = page_links([key for key, _ in row_items], rows_per_page)
 
     item = {
         'section': section,
         'rows': rows,
         'grid_page': grid_page,
-        'unit_links': unit_links,
+        'grid_page_links': grid_page_links,
         'has_row_labels': has_row_labels,
         'total': selected['total'],
         'stats': _compute_section_stats(counts.get(section.id, {})),

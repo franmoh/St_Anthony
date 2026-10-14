@@ -109,7 +109,7 @@ const PlotWindow = (function () {
         const controls = win.querySelector('[data-window-controls]');
         if (!controls) return;
         controls.hidden = total <= per;
-        controls.querySelector('[data-window-status]').textContent =
+        controls.querySelector('[data-window-status]').textContent = controls.dataset.windowNoun + ' ' +
             (start + 1) + '–' + Math.min(start + per, total) + ' of ' + total;
         controls.querySelector('[data-window-prev]').disabled = start === 0;
         controls.querySelector('[data-window-next]').disabled = start >= lastStart;

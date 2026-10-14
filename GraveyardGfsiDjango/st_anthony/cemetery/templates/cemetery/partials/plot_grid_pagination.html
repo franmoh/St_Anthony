@@ -1,14 +1,13 @@
 {% comment %}
-Pages for a section grid (Plot Map and Manage Plots): 10 rows per page, or 2 columbarium units per page
-with a link per page named by its units ("30–34"). Links keep the section and swap the whole
-section view, like the tabs.
-Renders nothing for a single page.
+Pages for a section grid (Plot Map and Manage Plots): 10 rows per page, or 2 columbarium units
+per page, with a link per page named by its rows or units ("A–J", "30–34"). Links keep the
+section and swap the whole section view, like the tabs. Renders nothing for a single page.
 {% endcomment %}
 {% with page=item.grid_page sid=item.section.id %}
 {% if page and page.paginator.num_pages > 1 %}
 {% with link="shrink-0 whitespace-nowrap px-3 py-1.5 border border-gray-200 text-sm font-medium text-blue-900 hover:bg-blue-50 transition-colors" disabled="shrink-0 whitespace-nowrap px-3 py-1.5 border border-gray-100 text-sm font-medium text-gray-300 cursor-not-allowed" %}
 <nav class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100"
-     aria-label="{% if item.unit_links %}Columbarium units{% else %}Row pages{% endif %}"
+     aria-label="{% if item.is_columbarium %}Columbarium units{% else %}Row pages{% endif %}"
      hx-target="#plot-section-view" hx-swap="innerHTML" hx-push-url="true" hx-indicator="#plot-section-view">
     {% if page.has_previous %}
     <a href="?section={{ sid }}&amp;page={{ page.previous_page_number }}" hx-get="?section={{ sid }}&amp;page={{ page.previous_page_number }}" class="{{ link }}">&larr; Prev</a>
@@ -16,19 +15,12 @@ Renders nothing for a single page.
     <span class="{{ disabled }}" aria-disabled="true">&larr; Prev</span>
     {% endif %}
 
-    {% if item.unit_links %}
-    {# Phones: unit links take their own line above Prev/Next #}
+    {% if item.grid_page_links %}
+    {# Phones: page links take their own line above Prev/Next #}
     <div class="order-first w-full sm:order-none sm:w-auto flex flex-wrap items-center justify-center gap-1.5">
-        {% with noun=page.paginator.per_page|pluralize:"Unit,Units" %}
+        {% with noun=item.is_columbarium|yesno:"Units,Rows" %}
         <span class="text-sm text-gray-500 mr-1">{{ noun }}</span>
-        {% for num, unit in item.unit_links %}
-        {% if num == page.number %}
-        <span class="min-w-9 px-2 py-1 text-center border border-blue-950 bg-blue-950 text-white text-sm font-semibold whitespace-nowrap" aria-current="page">{{ unit }}</span>
-        {% else %}
-        <a href="?section={{ sid }}&amp;page={{ num }}" hx-get="?section={{ sid }}&amp;page={{ num }}" aria-label="{{ noun }} {{ unit }}"
-           class="min-w-9 px-2 py-1 text-center border border-gray-200 text-sm font-medium text-blue-900 hover:bg-blue-50 transition-colors whitespace-nowrap">{{ unit }}</a>
-        {% endif %}
-        {% endfor %}
+        {% include 'cemetery/partials/plot_grid_page_links.html' %}
         {% endwith %}
     </div>
     {% else %}

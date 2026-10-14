@@ -1,0 +1,9 @@
+{# One button per page of a section grid, named by its rows or units; used by plot_grid_pagination.html #}
+{% for num, label in item.grid_page_links %}
+{% if num == page.number %}
+<span class="min-w-9 px-2 py-1 text-center border border-blue-950 bg-blue-950 text-white text-sm font-semibold whitespace-nowrap" aria-current="page">{{ label }}</span>
+{% else %}
+<a href="?section={{ sid }}&amp;page={{ num }}" hx-get="?section={{ sid }}&amp;page={{ num }}" aria-label="{{ noun }} {{ label }}"
+   class="min-w-9 px-2 py-1 text-center border border-gray-200 text-sm font-medium text-blue-900 hover:bg-blue-50 transition-colors whitespace-nowrap">{{ label }}</a>
+{% endif %}
+{% endfor %}
